@@ -105,6 +105,9 @@
         <button onclick="switchTab('tds')" id="tabBtn-tds" class="px-3.5 py-1.5 rounded-md text-ink-600 hover:text-ink-900 transition">
           📝 Dossiers de TD (<span id="tdsCount">0</span>)
         </button>
+        <button onclick="switchTab('fiches')" id="tabBtn-fiches" class="px-3.5 py-1.5 rounded-md text-ink-600 hover:text-ink-900 transition">
+          📑 Fiches & Exos-Types (<span id="fichesCount">0</span>)
+        </button>
         <button onclick="switchTab('revision')" id="tabBtn-revision" class="px-3.5 py-1.5 rounded-md text-ink-600 hover:text-ink-900 transition">
           📅 Programmes de Révision
         </button>
@@ -189,6 +192,9 @@
         </button>
         <button onclick="quickAction('methode')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
           📐 Rappel de méthode
+        </button>
+        <button onclick="quickAction('fiche')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+          📑 Fiche Méthode & Exo-Type
         </button>
         <button onclick="quickAction('preuve')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
           🔍 Moelle de la démonstration
@@ -318,7 +324,62 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- ONGLET 4 : PROGRAMMES DE RÉVISION                                         -->
+    <!-- ONGLET 4 : FICHES DE SYNTHÈSE & EXERCICES-TYPES                          -->
+    <!-- ========================================================================= -->
+    <section id="tab-fiches" class="hidden flex-1 flex flex-col space-y-5">
+      
+      <!-- En-tête de section -->
+      <div class="flex items-center justify-between pb-3 border-b border-ink-200">
+        <div>
+          <h2 class="text-base font-bold text-ink-900 font-serif">Fiches de Synthèse & Exercices-Types</h2>
+          <p class="text-xs text-ink-500">Pivots théoriques, réflexes d'ingénieur et résolutions canoniques adossés à vos cours et exercices corrigés.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="generateAllFichesFromCourses()" class="px-3.5 py-2 bg-white hover:bg-paper-100 border border-ink-900 text-ink-900 text-xs rounded font-medium transition flex items-center gap-1.5 shadow-xs">
+            ⚡ Synthétiser mes Cours
+          </button>
+          <button onclick="openFicheModal()" class="px-3.5 py-2 bg-ink-900 hover:bg-ink-800 text-white text-xs rounded font-medium transition flex items-center gap-1.5 shadow-sm">
+            + Rédiger une Fiche
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtres de navigation des Fiches -->
+      <div class="flex items-center gap-2 border-b border-ink-100 pb-2 text-xs">
+        <span class="text-ink-400 font-medium mr-1">Catégorie :</span>
+        <button onclick="setFicheFilter('all')" id="ficheFilter-all" class="px-2.5 py-1 rounded bg-ink-900 text-white font-medium transition">Toutes (<span id="fichesTotalCount">0</span>)</button>
+        <button onclick="setFicheFilter('synthese')" id="ficheFilter-synthese" class="px-2.5 py-1 rounded bg-paper-100 border border-ink-200 text-ink-700 hover:bg-paper-200 transition">📖 Fiches de Cours (<span id="fichesSyntheseCount">0</span>)</button>
+        <button onclick="setFicheFilter('exo_type')" id="ficheFilter-exo_type" class="px-2.5 py-1 rounded bg-paper-100 border border-ink-200 text-ink-700 hover:bg-paper-200 transition">🎯 Exercices-Types Corrigés (<span id="fichesExosCount">0</span>)</button>
+      </div>
+
+      <!-- Grille des Fiches -->
+      <div id="fichesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendu dynamique par JS -->
+      </div>
+
+      <!-- État Vide Fiches -->
+      <div id="fichesEmptyState" class="bg-white border border-dashed border-ink-200 rounded-xl p-12 text-center space-y-3">
+        <div class="w-12 h-12 mx-auto rounded border border-ink-200 bg-paper-100 flex items-center justify-center text-xl text-ink-500">
+          📑
+        </div>
+        <h3 class="text-sm font-semibold text-ink-800 font-serif">Aucune fiche de synthèse ni exercice-type</h3>
+        <p class="text-xs text-ink-500 max-w-md mx-auto leading-relaxed">
+          Votre classeur de fiches est vierge. Dès que vous importez un cours, vous pouvez générer sa fiche de synthèse en 1 clic. Lorsque vous résolvez un exercice avec le Chatbot, vous pouvez également l'archiver ici comme exercice-type modèle.
+        </p>
+        <div class="flex justify-center gap-3 pt-2">
+          <button onclick="generateAllFichesFromCourses()" class="px-4 py-2 bg-ink-900 hover:bg-ink-800 text-white text-xs rounded font-medium transition flex items-center gap-1.5 shadow-sm">
+            ⚡ Synthétiser mes Cours Existants
+          </button>
+          <button onclick="openFicheModal()" class="px-4 py-2 bg-white hover:bg-paper-100 border border-ink-900 text-ink-900 text-xs rounded font-medium transition">
+            + Rédiger une Fiche Manuellement
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 5 : PROGRAMMES DE RÉVISION                                         -->
     <!-- ========================================================================= -->
     <section id="tab-revision" class="hidden flex-1 flex flex-col space-y-5">
       
@@ -442,7 +503,108 @@
     </div>
   </div>
 
-  <!-- ================= MODALE : SUPABASE CLOUD (PROJET TEACHER) ================= -->
+  <!-- ================= MODALE : NOUVELLE FICHE DE SYNTHÈSE / EXO-TYPE ================= -->
+  <div id="ficheModal" class="hidden fixed inset-0 bg-ink-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-ink-200 rounded-xl max-w-xl w-full p-6 shadow-xl space-y-4">
+      <div class="flex items-center justify-between border-b border-ink-200 pb-3">
+        <h3 class="text-sm font-bold text-ink-900 font-serif">Nouvelle Fiche de Synthèse / Exercice-Type</h3>
+        <button onclick="closeFicheModal()" class="text-ink-400 hover:text-ink-700">✕</button>
+      </div>
+
+      <form onsubmit="handleSaveFiche(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-ink-600 font-medium mb-1">Type de Fiche :</label>
+            <select id="ficheTypeInput" class="w-full p-2 bg-paper-50 border border-ink-200 rounded text-ink-900">
+              <option value="synthese">📖 Fiche de Cours (Théorie & Pivots)</option>
+              <option value="exo_type">🎯 Exercice-Type (Méthode Canonique)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-ink-600 font-medium mb-1">Matière / Discipline :</label>
+            <input type="text" id="ficheSubjectInput" required placeholder="Ex: Algèbre Linéaire, Analyse..." 
+              class="w-full p-2 bg-paper-50 border border-ink-200 rounded text-ink-900">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Titre de la Fiche :</label>
+          <input type="text" id="ficheTitleInput" required placeholder="Ex: Diagonalisation des Matrices Symétriques ou Intégrale de Gauss" 
+            class="w-full p-2 bg-paper-50 border border-ink-200 rounded text-ink-900">
+        </div>
+
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Cours rattaché (Optionnel) :</label>
+          <select id="ficheCourseSelect" class="w-full p-2 bg-paper-50 border border-ink-200 rounded text-ink-900">
+            <option value="">Aucun cours rattaché (Général)...</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Contenu Détaillé (Markdown + KaTeX $...$ et $$...$$) :</label>
+          <textarea id="ficheContentInput" rows="7" required placeholder="Rédigez le pivot théorique ou l'énoncé et la méthode pas-à-pas..." 
+            class="w-full p-2.5 font-mono text-xs bg-paper-50 border border-ink-200 rounded text-ink-900 resize-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Réflexes de concours & Pièges à éviter :</label>
+          <input type="text" id="ficheReflexesInput" placeholder="Ex: Vérifier la positivité avant d'appliquer le théorème de Fubini..." 
+            class="w-full p-2 bg-paper-50 border border-ink-200 rounded text-ink-900">
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2 border-t border-ink-100">
+          <button type="button" onclick="closeFicheModal()" class="px-3 py-1.5 border border-ink-200 rounded text-ink-600 hover:bg-paper-100">
+            Annuler
+          </button>
+          <button type="submit" class="px-4 py-1.5 bg-ink-900 text-white rounded font-medium hover:bg-ink-800">
+            Enregistrer la Fiche
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODALE : LECTEUR ÉLÉGANT DE FICHE ================= -->
+  <div id="ficheViewerModal" class="hidden fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-ink-200 rounded-2xl max-w-3xl w-full max-h-[90vh] p-6 shadow-2xl flex flex-col space-y-4">
+      <div class="flex items-center justify-between border-b border-ink-200 pb-3">
+        <div class="flex items-center gap-3">
+          <span id="viewFicheIcon" class="text-2xl">📑</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="viewFicheBadge" class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-paper-200 text-ink-700">Fiche</span>
+              <span id="viewFicheSubject" class="text-xs font-semibold text-ink-600">Discipline</span>
+            </div>
+            <h3 id="viewFicheTitle" class="text-base font-bold text-ink-900 font-serif mt-0.5">Titre de la Fiche</h3>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="trainOnCurrentViewerFiche()" class="px-3 py-1.5 bg-ink-900 text-white rounded text-xs font-medium hover:bg-ink-800 transition shadow-xs flex items-center gap-1.5">
+            💬 Travailler avec le Prof
+          </button>
+          <button onclick="closeFicheViewer()" class="text-ink-400 hover:text-ink-700 text-lg">✕</button>
+        </div>
+      </div>
+
+      <!-- Alerte Réflexes / Pièges -->
+      <div id="viewFicheReflexesBox" class="bg-paper-100 border-l-4 border-ink-900 p-3 rounded-r text-xs text-ink-800 space-y-1">
+        <strong class="font-bold block text-ink-900">⚡ Réflexes de Copie & Pièges Classiques :</strong>
+        <p id="viewFicheReflexesText" class="leading-relaxed">Conseil de méthode.</p>
+      </div>
+
+      <!-- Corps de la Fiche -->
+      <div class="flex-1 overflow-y-auto pr-2 space-y-4 text-xs leading-relaxed text-ink-800 bg-white p-2">
+        <div id="viewFicheBody" class="prose prose-xs max-w-none font-sans whitespace-pre-wrap">
+          <!-- Rendu KaTeX -->
+        </div>
+      </div>
+
+      <div class="pt-2 border-t border-ink-100 flex justify-between items-center text-xs text-ink-500">
+        <span id="viewFicheDate">Date</span>
+        <button onclick="closeFicheViewer()" class="px-3 py-1 border border-ink-200 rounded text-ink-700 hover:bg-paper-100">Fermer</button>
+      </div>
+    </div>
+  </div>
   <div id="cloudModal" class="hidden fixed inset-0 bg-ink-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white border border-ink-200 rounded-xl max-w-lg w-full p-6 shadow-xl space-y-4">
       <div class="flex items-center justify-between border-b border-ink-200 pb-3">
@@ -579,6 +741,7 @@
     let appData = {
       courses: [], // Liste des cours ajoutés par l'utilisateur
       tds: [],     // Liste des TD ajoutés par l'utilisateur
+      fiches: [],  // Fiches de synthèse et exercices-types
       revisions: [],// Programmes de révision
       activeCourseId: null,
       messages: [] // Historique de conversation avec le prof
@@ -706,16 +869,18 @@
 
     // --- GESTION DES ONGLETS ---
     function switchTab(tabId) {
-      const tabs = ['chat', 'courses', 'tds', 'revision'];
+      const tabs = ['chat', 'courses', 'tds', 'fiches', 'revision'];
       tabs.forEach(t => {
         const el = document.getElementById(`tab-${t}`);
         const btn = document.getElementById(`tabBtn-${t}`);
-        if (t === tabId) {
-          el.classList.remove('hidden');
-          btn.className = 'px-3.5 py-1.5 rounded-md bg-white text-ink-900 shadow-sm transition font-semibold';
-        } else {
-          el.classList.add('hidden');
-          btn.className = 'px-3.5 py-1.5 rounded-md text-ink-600 hover:text-ink-900 transition';
+        if (el && btn) {
+          if (t === tabId) {
+            el.classList.remove('hidden');
+            btn.className = 'px-3.5 py-1.5 rounded-md bg-white text-ink-900 shadow-sm transition font-semibold';
+          } else {
+            el.classList.add('hidden');
+            btn.className = 'px-3.5 py-1.5 rounded-md text-ink-600 hover:text-ink-900 transition';
+          }
         }
       });
       renderAllMath();
@@ -1198,6 +1363,399 @@
       }
     }
 
+    // --- GESTION DES FICHES DE SYNTHÈSE & EXERCICES-TYPES ---
+    let currentFicheFilter = 'all';
+    let currentViewerFiche = null;
+
+    function setFicheFilter(filter) {
+      currentFicheFilter = filter;
+      const filters = ['all', 'synthese', 'exo_type'];
+      filters.forEach(f => {
+        const btn = document.getElementById(`ficheFilter-${f}`);
+        if (btn) {
+          if (f === filter) {
+            btn.className = 'px-2.5 py-1 rounded bg-ink-900 text-white font-medium transition';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded bg-paper-100 border border-ink-200 text-ink-700 hover:bg-paper-200 transition';
+          }
+        }
+      });
+      renderFichesList();
+    }
+
+    function openFicheModal() {
+      document.getElementById('ficheTypeInput').value = 'synthese';
+      document.getElementById('ficheSubjectInput').value = '';
+      document.getElementById('ficheTitleInput').value = '';
+      document.getElementById('ficheContentInput').value = '';
+      document.getElementById('ficheReflexesInput').value = '';
+
+      const select = document.getElementById('ficheCourseSelect');
+      select.innerHTML = '<option value="">Aucun cours rattaché (Général)...</option>';
+      appData.courses.forEach(c => {
+        select.innerHTML += `<option value="${c.id}">${c.subject} - ${c.title}</option>`;
+      });
+
+      document.getElementById('ficheModal').classList.remove('hidden');
+    }
+
+    function closeFicheModal() {
+      document.getElementById('ficheModal').classList.add('hidden');
+    }
+
+    function handleSaveFiche(e) {
+      e.preventDefault();
+      const type = document.getElementById('ficheTypeInput').value;
+      const subject = document.getElementById('ficheSubjectInput').value.trim();
+      const title = document.getElementById('ficheTitleInput').value.trim();
+      const courseId = document.getElementById('ficheCourseSelect').value || null;
+      const content = document.getElementById('ficheContentInput').value.trim();
+      const reflexes = document.getElementById('ficheReflexesInput').value.trim();
+
+      if (!subject || !title || !content) return;
+
+      const newFiche = {
+        id: 'fiche_' + Date.now(),
+        type,
+        courseId,
+        subject,
+        title,
+        content,
+        reflexes,
+        createdAt: new Date().toISOString()
+      };
+
+      if (!appData.fiches) appData.fiches = [];
+      appData.fiches.push(newFiche);
+      saveLocalData();
+      pushToCloud(false);
+      closeFicheModal();
+      updateAllViews();
+      switchTab('fiches');
+    }
+
+    function deleteFiche(ficheId) {
+      if (confirm("Supprimer cette fiche de révision ?")) {
+        appData.fiches = appData.fiches.filter(f => f.id !== ficheId);
+        saveLocalData();
+        pushToCloud(false);
+        updateAllViews();
+      }
+    }
+
+    function openFicheViewer(fiche) {
+      if (!fiche) return;
+      currentViewerFiche = fiche;
+      document.getElementById('viewFicheIcon').innerText = fiche.type === 'synthese' ? '📖' : '🎯';
+      document.getElementById('viewFicheBadge').innerText = fiche.type === 'synthese' ? 'Synthèse de Cours' : 'Exercice-Type Canonique';
+      document.getElementById('viewFicheSubject').innerText = fiche.subject;
+      document.getElementById('viewFicheTitle').innerText = fiche.title;
+      
+      const reflexesBox = document.getElementById('viewFicheReflexesBox');
+      const reflexesText = document.getElementById('viewFicheReflexesText');
+      if (fiche.reflexes) {
+        reflexesText.innerText = fiche.reflexes;
+        reflexesBox.classList.remove('hidden');
+      } else {
+        reflexesBox.classList.add('hidden');
+      }
+
+      document.getElementById('viewFicheBody').innerHTML = fiche.content.replace(/\n/g, '<br>');
+      document.getElementById('viewFicheDate').innerText = 'Créée le ' + new Date(fiche.createdAt).toLocaleDateString();
+
+      document.getElementById('ficheViewerModal').classList.remove('hidden');
+      renderAllMath();
+    }
+
+    function openFicheViewerById(ficheId) {
+      const f = appData.fiches ? appData.fiches.find(x => x.id === ficheId) : null;
+      if (f) openFicheViewer(f);
+    }
+
+    function closeFicheViewer() {
+      document.getElementById('ficheViewerModal').classList.add('hidden');
+      currentViewerFiche = null;
+    }
+
+    function trainOnCurrentViewerFiche() {
+      if (!currentViewerFiche) return;
+      const f = currentViewerFiche;
+      closeFicheViewer();
+      trainOnExoType(f.id);
+    }
+
+    function trainOnExoType(ficheId) {
+      const fiche = appData.fiches ? appData.fiches.find(f => f.id === ficheId) : null;
+      if (!fiche) return;
+
+      if (fiche.courseId) {
+        appData.activeCourseId = fiche.courseId;
+      }
+      updateActiveContextUI();
+      switchTab('chat');
+
+      appendChatMessage('user', `Professeur, je souhaite travailler et m'entraîner sur la fiche : « **${fiche.title}** » (${fiche.subject}).\n\nPouvez-vous tester ma compréhension ou me guider sur un exercice d'application rigoureux ?`);
+
+      setTimeout(() => {
+        appendChatMessage('professor', 
+          `**Session d'entraînement ciblée sur : *${fiche.title}***\n\n` +
+          `J'ai chargé les points théoriques et les réflexes clés de cette fiche.\n\n` +
+          (fiche.reflexes ? `⚡ **Rappel du réflexe d'ingénieur :** *${fiche.reflexes}*\n\n` : '') +
+          `**Votre première question d'assimilation :**\n` +
+          `Expliquez-moi avec vos mots la condition nécessaire ou l'hypothèse de départ qu'on oublie 9 fois sur 10 dans ce chapitre, puis proposez votre démarche pour résoudre un cas type.`);
+      }, 400);
+    }
+
+    function generateFicheFromCourse(courseId) {
+      const c = appData.courses.find(x => x.id === courseId);
+      if (!c) return;
+
+      const sub = (c.subject + ' ' + c.title).toLowerCase();
+      let pivots = "";
+      let exoCanonique = "";
+      let reflexe = "";
+
+      if (sub.includes('alg') || sub.includes('matrice') || sub.includes('vector') || sub.includes('espace')) {
+        pivots = `### 1. Définitions & Propriétés Cardinales
+- **Endomorphisme diagonalisable** : $\\exists P \\in \\text{GL}_n(\\mathbb{K}), \\; A = P D P^{-1} \\iff \\sum \\dim(E_\\lambda) = n$.
+- **Théorème Spectral** : Toute matrice symétrique réelle $S \\in \\mathcal{S}_n(\\mathbb{R})$ est diagonalisable dans une base orthonormée de vecteurs propres ($S = P D P^T$ avec $P \\in \\mathcal{O}_n(\\mathbb{R})$).
+- **Polynôme Annulateur & Minimal** : $A$ est diagonalisable $\\iff$ son polynôme minimal $\\mu_A$ est scindé à racines simples.
+
+### 2. Algorithme de Décision
+1. Calcul du polynôme caractéristique $P_A(X) = \\det(A - X I_n)$.
+2. Recherche des racines (valeurs propres $\\lambda_i$) et multiplicités algébriques $m_i$.
+3. Vérification de la dimension des sous-espaces propres $\\dim(\\ker(A - \\lambda_i I_n)) = m_i$.`;
+
+        exoCanonique = `### Énoncé Canonique
+Soit $A = \\begin{pmatrix} 1 & 1 & 1 \\\\ 1 & 1 & 1 \\\\ 1 & 1 & 1 \\end{pmatrix} \\in \\mathcal{M}_3(\\mathbb{R})$.
+1. Justifier sans calcul direct que $A$ est diagonalisable.
+2. Déterminer son rang et en déduire la multiplicité de 0 comme valeur propre.
+3. Calculer la trace de $A$ et achever la diagonalisation en fournissant une base orthonormée de vecteurs propres.
+
+### Démarche d'Ingénieur & Correction Type
+- **Étape 1** : $A$ est symétrique réelle ($A = A^T$), donc par le **Théorème Spectral**, $A$ est diagonalisable dans une base orthonormée.
+- **Étape 2** : Toutes les colonnes sont identiques, donc $\\text{rg}(A) = 1$. Par le théorème du rang, $\\dim(\\ker(A)) = 3 - 1 = 2$. Ainsi, $\\lambda = 0$ est valeur propre de multiplicité géométrique au moins 2.
+- **Étape 3** : La trace vaut $\\text{Tr}(A) = 3 = \\sum \\lambda_i = 0 + 0 + \\lambda_3 \\implies \\lambda_3 = 3$. Le spectre est $\\text{Sp}(A) = \\{0, 3\\}$. Base orthonormée : $v_1 = \\frac{1}{\\sqrt{2}}(1, -1, 0)^T$, $v_2 = \\frac{1}{\\sqrt{6}}(1, 1, -2)^T$, $v_3 = \\frac{1}{\\sqrt{3}}(1, 1, 1)^T$.`;
+
+        reflexe = "Penser immédiatement au théorème du rang et à la trace avant de déployer un calcul lourd de déterminant 3x3.";
+      } else if (sub.includes('analys') || sub.includes('diff') || sub.includes('intégr') || sub.includes('suite') || sub.includes('série')) {
+        pivots = `### 1. Théorèmes de Convergence & Interversion
+- **Convergence Dominée (TCD de Lebesgue)** : Soit $(f_n)$ convergeant simplement vers $f$ sur $I$. S'il existe $g \\in L^1(I)$ positive intégrable telle que $\\forall n, |f_n| \\le g$, alors :
+  $$\\lim_{n \\to \\infty} \\int_I f_n = \\int_I f$$
+- **Dérivation sous le signe intégrale (Leibniz)** :
+  1. $t \\mapsto f(x, t)$ intégrable sur $I$.
+  2. $x \\mapsto f(x, t)$ de classe $\\mathcal{C}^1$ sur $J$.
+  3. Hypothèse de domination de la dérivée : $|\\frac{\\partial f}{\\partial x}(x, t)| \\le \\varphi(t)$ avec $\\varphi \\in L^1(I)$.
+
+### 2. Réflexes d'Ingénieur
+- Toujours vérifier la domination sur un segment quelconque $[a, b] \\subset J$ (la domination locale suffit pour établir la classe $\\mathcal{C}^1$).`;
+
+        exoCanonique = `### Énoncé Canonique
+Étudier la dérivabilité et calculer pour tout $x \\in \\mathbb{R}$ l'intégrale à paramètre :
+$$F(x) = \\int_0^{+\\infty} e^{-t^2} \\cos(x t) \\, dt$$
+
+### Démarche d'Ingénieur & Correction Type
+- **Étape 1 (Continuité)** : Pour tout $x \\in \\mathbb{R}$, $|e^{-t^2} \\cos(xt)| \\le e^{-t^2}$ intégrable sur $[0, +\\infty[$. $F$ est définie et continue sur $\\mathbb{R}$.
+- **Étape 2 (Dérivation)** : La dérivée partielle est $\\frac{\\partial}{\\partial x}(e^{-t^2} \\cos(xt)) = -t e^{-t^2} \\sin(xt)$.
+- Domination : $|-t e^{-t^2} \\sin(xt)| \\le t e^{-t^2} = \\psi(t)$. $\\psi$ est intégrable sur $[0, +\\infty[$. Par le théorème de Leibniz, $F$ est $\\mathcal{C}^1$.
+- **Étape 3 (Équation différentielle)** : Par intégration par parties :
+  $$F'(x) = \\int_0^{+\\infty} (-t e^{-t^2}) \\sin(xt) dt = \\left[ \\frac{1}{2} e^{-t^2} \\sin(xt) \\right]_0^{+\\infty} - \\frac{x}{2} \\int_0^{+\\infty} e^{-t^2} \\cos(xt) dt = -\\frac{x}{2} F(x)$$
+  Donc $F(x) = F(0) e^{-x^2 / 4} = \\frac{\\sqrt{\\pi}}{2} e^{-x^2 / 4}$.`;
+
+        reflexe = "Ne jamais dériver sans justifier l'intégrabilité de la fonction dominante phi(t) = t * exp(-t^2).";
+      } else if (sub.includes('prob') || sub.includes('stat') || sub.includes('markov')) {
+        pivots = `### 1. Inégalités & Théorèmes Limites
+- **Inégalité de Bienaymé-Tchebychev** : $\\mathbb{P}(|X - \\mathbb{E}[X]| \\ge \\varepsilon) \\le \\frac{\\text{Var}(X)}{\\varepsilon^2}$.
+- **Loi Forte des Grands Nombres** : Si $(X_n)$ i.i.d intégrables, $\\overline{X}_n \\xrightarrow{p.s.} \\mathbb{E}[X_1]$.
+- **Théorème Central Limite (TCL)** : Si $(X_n)$ i.i.d de variance $\\sigma^2 < +\\infty$ :
+  $$\\sqrt{n} \\frac{\\overline{X}_n - \\mu}{\\sigma} \\xrightarrow{\\mathcal{L}} \\mathcal{N}(0, 1)$$`;
+
+        exoCanonique = `### Énoncé Canonique
+Soit une suite de variables indépendantes suivant une loi de Bernoulli $\\mathcal{B}(p)$ avec $p \\in ]0, 1[$. Déterminer le nombre minimal de tirages $n$ nécessaires pour obtenir une précision à $10^{-2}$ sur l'estimation de $p$ au niveau de confiance $95\\%$.
+
+### Démarche d'Ingénieur & Correction Type
+- **Étape 1** : Utiliser l'estimateur sans biais $\\widehat{p}_n = \\frac{1}{n} \\sum_{i=1}^n X_i$.
+- **Étape 2** : Variance maximale : $\\text{Var}(\\widehat{p}_n) = \\frac{p(1-p)}{n} \\le \\frac{1}{4n}$.
+- **Étape 3 (TCL)** : Par le quantile gaussien $u_{0.975} \\approx 1.96$, l'intervalle de confiance est d'amplitude $2 \\times 1.96 \\times \\frac{1}{2\\sqrt{n}} \\le 0.01 \\implies n \\ge 1.96^2 \\times 10^4 \\approx 38416$.`;
+
+        reflexe = "Toujours majorer p(1-p) par 1/4 lorsque p est inconnu pour garantir une borne conservative.";
+      } else {
+        pivots = `### 1. Cadre Théorique & Hypothèses Cardinales
+- Polycopié de référence : **${c.title}** (${c.subject}).
+- Identifier l'espace d'état ou l'espace vectoriel ambiant, les normes associées et les hypothèses de compacité ou de complétude.
+- Énoncer les propriétés fondamentales qui structurent toutes les démonstrations de ce chapitre.
+
+### 2. Réflexes de Méthode
+- Reformuler tout problème sous forme variationnelle ou matricielle.
+- Vérifier systématiquement l'invariance par changement d'échelle ou de coordonnées.`;
+
+        exoCanonique = `### Énoncé Canonique
+Problème représentatif adossé au cours « ${c.title} ».
+Démontrer la convergence ou l'existence de la solution unique, puis établir l'expression explicite dans le cas standard.
+
+### Résolution Type
+1. Poser les hypothèses de départ et l'opérateur associé.
+2. Démontrer le caractère contractant ou la positivité du déterminant.
+3. Conclure par un encadrement ou un calcul exact vérifié aux limites.`;
+
+        reflexe = "Tester systématiquement le résultat sur un cas limite trivial (ex: n=1, x=0, vecteur nul).";
+      }
+
+      if (!appData.fiches) appData.fiches = [];
+
+      // Fiche de synthèse de cours
+      const fiche1 = {
+        id: 'fiche_synth_' + Date.now(),
+        type: 'synthese',
+        courseId: c.id,
+        subject: c.subject,
+        title: `Synthèse : ${c.title}`,
+        content: pivots,
+        reflexes: reflexe,
+        createdAt: new Date().toISOString()
+      };
+
+      // Fiche exercice-type
+      const fiche2 = {
+        id: 'fiche_exo_' + (Date.now() + 1),
+        type: 'exo_type',
+        courseId: c.id,
+        subject: c.subject,
+        title: `Exo-Type : ${c.title}`,
+        content: exoCanonique,
+        reflexes: reflexe,
+        createdAt: new Date().toISOString()
+      };
+
+      appData.fiches.push(fiche1, fiche2);
+      saveLocalData();
+      pushToCloud(false);
+      updateAllViews();
+      switchTab('fiches');
+      alert(`2 fiches générées pour « ${c.title} » :\n1. 📖 Synthèse de Cours\n2. 🎯 Exercice-Type Canonique Corrigé.`);
+    }
+
+    function generateAllFichesFromCourses() {
+      if (appData.courses.length === 0) {
+        alert("Ajoutez d'abord au moins un cours ou importez un polycopié PDF dans '📚 Dossiers de Cours' !");
+        return;
+      }
+
+      let count = 0;
+      appData.courses.forEach(c => {
+        const hasFiche = appData.fiches && appData.fiches.some(f => f.courseId === c.id);
+        if (!hasFiche) {
+          generateFicheFromCourse(c.id);
+          count++;
+        }
+      });
+
+      if (count === 0) {
+        alert("Toutes vos matières possèdent déjà une fiche de synthèse et un exercice-type !");
+        switchTab('fiches');
+      }
+    }
+
+    function saveChatAsExoType(title, subject, content, reflexes) {
+      if (!appData.fiches) appData.fiches = [];
+      const newFiche = {
+        id: 'fiche_chat_' + Date.now(),
+        type: 'exo_type',
+        courseId: appData.activeCourseId || null,
+        subject: subject || (getActiveCourse() ? getActiveCourse().subject : "Mathématiques"),
+        title: title || "Exercice-Type Corrigé",
+        content: content,
+        reflexes: reflexes || "Soigner la rédaction et les hypothèses de régularité.",
+        createdAt: new Date().toISOString()
+      };
+      appData.fiches.push(newFiche);
+      saveLocalData();
+      pushToCloud(false);
+      updateAllViews();
+      alert(`L'exercice « ${newFiche.title} » a été ajouté à vos Fiches & Exos-Types !`);
+      switchTab('fiches');
+    }
+
+    function renderFichesList() {
+      const list = document.getElementById('fichesList');
+      const empty = document.getElementById('fichesEmptyState');
+      if (!list || !empty) return;
+
+      const fiches = appData.fiches || [];
+      const filtered = fiches.filter(f => {
+        if (currentFicheFilter === 'all') return true;
+        return f.type === currentFicheFilter;
+      });
+
+      // Mettre à jour les compteurs
+      const totalCount = fiches.length;
+      const syntheseCount = fiches.filter(f => f.type === 'synthese').length;
+      const exosCount = fiches.filter(f => f.type === 'exo_type').length;
+
+      const cTotal = document.getElementById('fichesCount');
+      const cTot2 = document.getElementById('fichesTotalCount');
+      const cSyn = document.getElementById('fichesSyntheseCount');
+      const cExo = document.getElementById('fichesExosCount');
+
+      if (cTotal) cTotal.innerText = totalCount;
+      if (cTot2) cTot2.innerText = totalCount;
+      if (cSyn) cSyn.innerText = syntheseCount;
+      if (cExo) cExo.innerText = exosCount;
+
+      if (filtered.length === 0) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+      } else {
+        empty.classList.add('hidden');
+        list.innerHTML = filtered.map(f => {
+          const isExo = f.type === 'exo_type';
+          const linkedCourse = appData.courses.find(c => c.id === f.courseId);
+          return `
+            <div class="bg-white border border-ink-200 rounded-xl p-5 shadow-sm flex flex-col justify-between hover:border-ink-800 transition">
+              <div>
+                <div class="flex items-center justify-between text-xs text-ink-500 mb-2">
+                  <span class="inline-flex items-center gap-1 font-semibold ${isExo ? 'text-amber-700 bg-amber-50 border border-amber-200' : 'text-blue-700 bg-blue-50 border border-blue-200'} px-2 py-0.5 rounded text-[11px]">
+                    ${isExo ? '🎯 Exercice-Type' : '📖 Synthèse'}
+                  </span>
+                  <span class="text-ink-400 text-[11px]">${new Date(f.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div class="text-[11px] font-medium text-ink-600 mb-1">
+                  ${f.subject} ${linkedCourse ? '• ' + linkedCourse.title : ''}
+                </div>
+                <h3 class="font-bold text-sm text-ink-900 font-serif mb-2">${f.title}</h3>
+
+                <div class="text-xs text-ink-600 line-clamp-4 font-mono bg-paper-100 p-2.5 rounded border border-ink-200 mb-2">
+                  ${f.content.substring(0, 180)}...
+                </div>
+
+                ${f.reflexes ? `
+                  <div class="text-[11px] bg-paper-200 text-ink-800 p-2 rounded border border-ink-200 flex items-start gap-1.5">
+                    <span class="shrink-0">⚡</span>
+                    <span class="line-clamp-2"><strong>Réflexe :</strong> ${f.reflexes}</span>
+                  </div>
+                ` : ''}
+              </div>
+
+              <div class="pt-4 mt-3 border-t border-ink-100 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                  <button onclick="openFicheViewerById('${f.id}')" class="px-2.5 py-1.5 bg-paper-100 border border-ink-200 text-ink-800 rounded font-medium hover:bg-paper-200 transition">
+                    👁️ Consulter
+                  </button>
+                  <button onclick="trainOnExoType('${f.id}')" class="px-2.5 py-1.5 bg-ink-900 text-white rounded font-medium hover:bg-ink-800 transition">
+                    💬 Travailler
+                  </button>
+                </div>
+                <button onclick="deleteFiche('${f.id}')" class="text-ink-400 hover:text-red-700">
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      renderAllMath();
+    }
+
     // --- GESTION DES PROGRAMMES DE RÉVISION ---
     function generateRevisionSchedule() {
       if (appData.courses.length === 0) {
@@ -1302,6 +1860,12 @@
           input.value = `📐 Quel est le théorème central et la méthode clé du cours « ${active.title} » ?`;
         } else {
           input.value = "📐 Rappelle-moi la méthode de résolution standard pour ce type de problème.";
+        }
+      } else if (type === 'fiche') {
+        if (active) {
+          input.value = `📑 Professeur, génère-moi la fiche de méthode et l'exercice-type canonique pour le cours « ${active.title} » (avec la solution rédigée et les réflexes d'examen).`;
+        } else {
+          input.value = "📑 Professeur, propose-moi un exercice-type classique d'école d'ingénieur avec sa correction détaillée et la méthode associée.";
         }
       } else if (type === 'preuve') {
         input.value = "🔍 Quelle est la moelle épinière de la démonstration ? Quels sont les 2 pivots logiques à retenir ?";
@@ -1485,31 +2049,66 @@
       const lower = userQuery.toLowerCase();
 
       if (active) {
-        response = `**Analyse adossée à votre cours : *${active.title}***\n\n`;
-
-        if (lower.includes('corrige') || lower.includes('démarche') || lower.includes('calcul')) {
-          response += `Examinons votre démarche avec la rigueur attendue en école d'ingénieur :\n\n` +
+        if (lower.includes('fiche') || lower.includes('exo') || lower.includes('exercice-type') || lower.includes('canonique') || lower.includes('modèle')) {
+          const safeTitle = active.title.replace(/'/g, "\\'");
+          const safeSubject = active.subject.replace(/'/g, "\\'");
+          response = `**📑 Fiche Méthode & Exercice-Type Canonique : *${active.title}***\n\n` +
+            `Voici l'exercice étalon incontournable pour ce polycopié, rédigé et corrigé selon les standards d'exigence des concours d'ingénieur :\n\n` +
+            `---\n\n` +
+            `### 🎯 1. Énoncé du Problème Type\n` +
+            `Soit $E = \\mathbb{R}_n[X]$. On considère l'application $u : P \\mapsto (X^2 - 1)P'' + (2X + 1)P'$.\n` +
+            `1. Justifier avec soin que $u$ stabilise $E$.\n` +
+            `2. Déterminer la matrice de $u$ dans la base canonique et en déduire l'intégralité de son spectre $\\text{Sp}(u)$.\n` +
+            `3. Conclure quant à la diagonalisabilité de $u$.\n\n` +
+            `---\n\n` +
+            `### ✍️ 2. Résolution Guidée & Rigueur Mathématique\n` +
+            `- **Stabilité** : Pour tout polynôme de degré $k \\le n$, le terme $(X^2-1)P''$ a un degré $\\le k$ et $(2X+1)P'$ a un degré $\\le k$. Donc $\\deg(u(P)) \\le \\deg(P) \\le n$. Ainsi $u \\in \\mathcal{L}(E)$.\n` +
+            `- **Caractère Triangulaire** : Le coefficient dominant de $u(X^k)$ est $k(k-1) + 2k = k(k+1)$. La matrice de $u$ est donc **triangulaire supérieure** dans la base canonique ordonnée $(1, X, \\dots, X^n)$.\n` +
+            `- **Spectre** : Les valeurs propres sont les éléments diagonaux : $\\lambda_k = k(k+1)$ pour $k \\in \\{0, 1, \\dots, n\\}$. Comme la fonction $k \\mapsto k(k+1)$ est strictement croissante sur $\\mathbb{N}$, les $n+1$ valeurs propres sont deux à deux distinctes.\n` +
+            `- **Verdict** : $u$ possède $\\dim(E) = n+1$ valeurs propres distinctes, donc **$u$ est diagonalisable**.\n\n` +
+            `---\n\n` +
+            `### ⚡ 3. Réflexes de Copie & Pièges à Éviter\n` +
+            `- Inutile d'expliciter chaque coefficient sous-diagonal : le caractère triangulaire et la stricte séparation des éléments diagonaux suffisent à conclure sans calcul lourd !\n\n` +
+            `<button onclick="saveChatAsExoType('Endomorphisme polynomial : ${safeTitle}', '${safeSubject}', 'Énoncé : Soit u(P) = (X^2-1)P\'\' + (2X+1)P\'. Montrer que u est diagonalisable.\\n\\nRésolution : Matrice triangulaire supérieure. Valeurs propres distinctes lambda_k = k(k+1). n+1 vp distinctes donc diagonalisable.', 'Vérifier la stricte croissance pour certifier que les valeurs propres sont distinctes.')" class="mt-2 px-3 py-1.5 bg-ink-900 text-white rounded text-xs font-medium hover:bg-ink-800 transition">💾 Enregistrer cet Exercice dans mes Fiches & Exos-Types</button>`;
+        } else if (lower.includes('corrige') || lower.includes('démarche') || lower.includes('calcul')) {
+          response = `**Analyse adossée à votre cours : *${active.title}***\n\n` +
+            `Examinons votre démarche avec la rigueur attendue en école d'ingénieur :\n\n` +
             `1. **Hypothèse et Espace de départ** : Avez-vous explicitement posé les dimensions et la nature des espaces vectoriels en jeu ? En vertu de votre cours, toute manipulation suppose de vérifier la régularité ou l'inversibilité au préalable.\n\n` +
             `2. **Lien avec la théorie de votre polycopié** :\n> *« ${active.body.substring(0, 160)}... »*\n\n` +
             `3. **Verdict de méthode** : Le calcul est cohérent, mais veillez à ne jamais sauter l'étape de justification de passage à la limite ou d'orthogonalité. La clarté de la copie fait la différence entre un candidat moyen et un major de promo.`;
         } else if (lower.includes('indice') || lower.includes('commencer') || lower.includes('débuter')) {
-          response += `**L'impulsion géométrique :**\n` +
+          response = `**Analyse adossée à votre cours : *${active.title}***\n\n` +
+            `**L'impulsion géométrique :**\n` +
             `Ne vous jetez pas sur le calcul brut. Regardez ce que cet opérateur fait dans l'espace :\n\n` +
             `- Quelle est la direction invariante ?\n` +
             `- Les volumes sont-ils conservés ou dilatés ?\n\n` +
             `Dans votre cours, appliquez le théorème clé : isolez le terme dominant avant de poser le système.`;
         } else {
-          response += `Pour répondre à votre question en restant parfaitement aligné sur votre cours :\n\n` +
+          response = `**Analyse adossée à votre cours : *${active.title}***\n\n` +
+            `Pour répondre à votre question en restant parfaitement aligné sur votre cours :\n\n` +
             `La clé réside dans la propriété suivante extraite de votre fiche :\n` +
             `$$\\text{Référence : } ${active.title}$$\n\n` +
             `Appliquez ce résultat aux données de votre problème et vérifiez la cohérence dimensionnelle du résultat.`;
         }
       } else {
-        response = `**Conseil méthodologique (Aucun cours spécifique attaché)** :\n\n` +
-          `Pour traiter ce problème d'ingénierie :\n\n` +
-          `1. **Visualisation spatiale** : Traduisez chaque équation sous forme de transformation ou de flux géométrique.\n` +
-          `2. **Rigueur du raisonnement** : Formulez la chaîne d'implications logiques sans supposer implicitement ce qu'il s'agit de démontrer.\n\n` +
-          `*(Conseil : Pour que j'adapte mes calculs exactement aux théorèmes de votre école, chargez votre polycopié dans l'onglet **📚 Dossiers de Cours**)*.`;
+        if (lower.includes('fiche') || lower.includes('exo') || lower.includes('exercice-type') || lower.includes('canonique') || lower.includes('modèle')) {
+          response = `**📑 Exercice-Type Canonique Modèle (Mathématiques Générales d'Ingénieur)** :\n\n` +
+            `Voici un problème classique portant sur l'inversion et la réduction matricielle via polynôme annulateur :\n\n` +
+            `### 🎯 Énoncé Modèle\n` +
+            `Soit $A \\in \\mathcal{M}_n(\\mathbb{R})$ telle que $A^3 = A + I_n$. Montrer que $\\det(A) > 0$ et que $\\text{Tr}(A) > 0$.\n\n` +
+            `### ✍️ Résolution d'Élite\n` +
+            `1. **Polynôme Annulateur** : Soit $P(X) = X^3 - X - 1$. Par hypothèse, $P(A) = 0$. Les valeurs propres complexes de $A$ sont racines de $P$.\n` +
+            `2. **Étude de $P$** : $P'(X) = 3X^2 - 1$. $P$ admet une unique racine réelle $\\lambda_0 \\in ]1, 2[$, et deux racines complexes conjuguées $z_1, \\bar{z}_1$ avec $|z_1|^2 > 0$.\n` +
+            `3. **Déterminant & Trace** : Le produit des racines est positif, donc $\\det(A) > 0$. De même $\\text{Tr}(A) = \\sum \\lambda_i > 0$.\n\n` +
+            `⚡ **Réflexe d'examen** : Toujours coupler l'étude analytique du polynôme annulateur avec les invariants $(\\det, \\text{Tr})$.\n\n` +
+            `<button onclick="saveChatAsExoType('Polynômes Annulateurs & Spectre', 'Algèbre Linéaire', 'Soit A^3 = A + I_n. Montrer que det(A) > 0 et Tr(A) > 0.\\n\\nRésolution : Étude des racines de P(X) = X^3 - X - 1. Une racine réelle strictement positive et deux complexes conjuguées.', 'Étudier la fonction P(X) et ses extremums avant d\\'en déduire les signes du spectre.')" class="mt-2 px-3 py-1.5 bg-ink-900 text-white rounded text-xs font-medium hover:bg-ink-800 transition">💾 Enregistrer cet Exercice dans mes Fiches & Exos-Types</button>`;
+        } else {
+          response = `**Conseil méthodologique (Aucun cours spécifique attaché)** :\n\n` +
+            `Pour traiter ce problème d'ingénierie :\n\n` +
+            `1. **Visualisation spatiale** : Traduisez chaque équation sous forme de transformation ou de flux géométrique.\n` +
+            `2. **Rigueur du raisonnement** : Formulez la chaîne d'implications logiques sans supposer implicitement ce qu'il s'agit de démontrer.\n\n` +
+            `*(Conseil : Pour que j'adapte mes calculs exactement aux théorèmes de votre école, chargez votre polycopié dans l'onglet **📚 Dossiers de Cours**)*.`;
+        }
       }
 
       appendChatMessage('professor', response);
@@ -1520,6 +2119,8 @@
       // 1. Compteurs
       document.getElementById('coursesCount').innerText = appData.courses.length;
       document.getElementById('tdsCount').innerText = appData.tds.length;
+      const fichesCountEl = document.getElementById('fichesCount');
+      if (fichesCountEl) fichesCountEl.innerText = appData.fiches ? appData.fiches.length : 0;
 
       // 2. Vue Cours
       const coursesList = document.getElementById('coursesList');
@@ -1564,6 +2165,9 @@
                       👁️ Feuilleter
                     </button>
                   ` : ''}
+                  <button onclick="generateFicheFromCourse('${c.id}')" class="px-2.5 py-1.5 bg-paper-100 border border-ink-200 text-ink-800 rounded font-medium hover:bg-paper-200 transition" title="Générer la synthèse de cours et l'exercice-type">
+                    📑 Synthétiser
+                  </button>
                   <button onclick="selectCourseForChat('${c.id}')" class="px-2.5 py-1.5 bg-ink-900 text-white rounded font-medium hover:bg-ink-800 transition">
                     💬 Travailler dans le Chat
                   </button>
@@ -1681,7 +2285,10 @@
         `;
       }
 
-      // 5. Contexte du Chat
+      // 5. Vue Fiches
+      renderFichesList();
+
+      // 6. Contexte du Chat
       updateActiveContextUI();
       renderAllMath();
     }
@@ -1702,7 +2309,8 @@
             tds: appData.tds.map(t => ({
               ...t,
               images: (t.images && t.images.length > 0) ? [t.images[0]] : []
-            }))
+            })),
+            fiches: appData.fiches || []
           };
           try {
             localStorage.setItem('maths_master_data', JSON.stringify(lightData));
@@ -1720,6 +2328,7 @@
           appData = JSON.parse(saved);
           if (!appData.courses) appData.courses = [];
           if (!appData.tds) appData.tds = [];
+          if (!appData.fiches) appData.fiches = [];
           if (!appData.revisions) appData.revisions = [];
           if (!appData.messages) appData.messages = [];
         } catch(e) {
@@ -1809,7 +2418,8 @@
         tds: appData.tds.map(t => ({
           ...t,
           images: (t.images && t.images.length > 0) ? [t.images[0]] : []
-        }))
+        })),
+        fiches: appData.fiches || []
       };
 
       try {

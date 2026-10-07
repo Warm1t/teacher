@@ -19,7 +19,8 @@
 * 💬 **Chatbot Spécialisé** : Dialogue avec le professeur d'élite, guidage socratique pas-à-pas, analyse rigoureuse de vos démarches, affichage des pages PDF sous forme d'images haute résolution et rendu $\LaTeX$ (KaTeX).
 * 📚 **Dossiers de Cours** : Classement par matières et chapitres de vos notes théoriques, avec **rendu visuel fidèle des polycopiés PDF (Canvas)** pour préserver à 100 % les intégrales, matrices, tenseurs et schémas géométriques.
 * 📝 **Dossiers de TD & Exercices** : Vos feuilles de TD triées en rendu visuel page par page, reliées directement au cours pour être résolues avec l'assistant.
-* 👁️ **Visionneuse Visuelle HD de Documents** : Modal intégrée pour feuilleter vos polycopiés page par page et envoyer une page précise au tuteur en un clic.
+* 📑 **Fiches & Exercices-Types Canoniques** : Résumés des pivots théoriques et exercices modèles corrigés adossés à vos cours, avec réflexes de concours et bouton d'archivage direct depuis le chat.
+* 👁️ **Visionneuse Visuelle HD de Documents** : Modale intégrée pour feuilleter vos polycopiés page par page et envoyer une page précise au tuteur en un clic.
 * 📄 **Glisser-Déposer (Drag & Drop) de PDF** : Déposez n'importe quel polycopié ou feuille d'exercices PDF sur la page pour rendu visuel et intégration instantanés.
 * 💾 **Stockage Local HD (IndexedDB)** : Sauvegarde sans quota de polycopiés volumineux dans le navigateur.
 * 📅 **Programmes de Révision** : Onglet dédié pour planifier votre assimilation en vue des partiels et concours.

@@ -80,7 +80,18 @@ L'application est découpée en **espaces clairs** :
 
 ---
 
-### 📅 Module 4 : Programmes de Révision (Onglet Dédié)
+### 📑 Module 4 : Fiches de Synthèse & Exercices-Types Canoniques
+* **Objectif** : Structurer l'assimilation théorique et méthodique adossée aux polycopiés et aux exercices résolus dans le chatbot.
+* **Composants** :
+  - **Fiches de Synthèse Théorique** : Définitions cardinales, théorèmes pivots (Spectral, Convergence dominée, Cauchy-Lipschitz, TCL, etc.), organigramme de décision.
+  - **Exercices-Types Canoniques Corrigés** : Énoncés étalons des concours et partiels, démarche d'ingénieur pas-à-pas, rédaction modèle.
+  - **Réflexes d'Examen & Pièges** : Encadrés d'alerte méthodologique sur chaque fiche.
+  - **Lecteur Académique HD** : Visionneuse modale élégante avec KaTeX et bouton d'entraînement direct dans le chatbot.
+  - **Génération en 1 clic** : Bouton `📑 Synthétiser` sur chaque carte de cours et bouton d'archivage automatique depuis le chatbot.
+
+---
+
+### 📅 Module 5 : Programmes de Révision (Onglet Dédié)
 * **Objectif** : Transformer les cours et TD enregistrés en une feuille de route d'assimilation méthodique (préparation de partiels, concours ou entretiens quantitatifs).
 * **Composants** :
   - Programme de révision par semaine ou par bloc thématique.
@@ -89,10 +100,9 @@ L'application est découpée en **espaces clairs** :
 
 ---
 
-### ☁️ Module 5 : Persistance & Synchronisation Cloud Supabase
+### ☁️ Module 6 : Persistance & Synchronisation Cloud Supabase
 * **Technologie** : Base de données Cloud PostgreSQL Supabase (Projet dédié `teacher`).
-* **Clé de synchronisation** : Clé privée de l'étudiant (défaut `warm1t`).
-* **Sauvegarde Silencieuse** : Tout ajout de cours, de TD ou de message dans le chat est immédiatement persisté en local (`localStorage`) et synchronisé sur le projet Supabase teacher pour un accès multi-appareils (PC de travail, ordinateur portable, tablette).
+* **Sauvegarde Silencieuse** : Tout ajout de cours, de TD, de fiche ou de message dans le chat est immédiatement persisté en local (`localStorage` et IndexedDB) et synchronisé sur le projet Supabase teacher pour un accès multi-appareils.
 
 ---
 
@@ -111,6 +121,8 @@ L'application est découpée en **espaces clairs** :
 - [x] Zéro élément ludique (pas d'XP, pas de badges, pas de sons ni confettis).
 - [x] Design épuré blanc/encre.
 - [x] L'espace est complètement vide par défaut à l'ouverture, prêt à accueillir les vrais cours de l'utilisateur.
+- [x] Rendu visuel fidèle des PDF page par page sur Canvas et stockage IndexedDB.
 - [x] Chatbot spécialisé avec sélection contextuelle du cours et du TD.
-- [x] Onglets clairs : Chatbot, Cours, TD, Programmes de Révision.
-- [x] Persistance locale et synchronisation Cloud Supabase fonctionnelle.
+- [x] Onglets clairs : Chatbot, Cours, TD, Fiches & Exos-Types, Programmes de Révision.
+- [x] Fiches de synthèse et exercices-types adossés aux cours avec correction modèle.
+- [x] Persistance locale et synchronisation Cloud Supabase fonctionnelle (projet dédié `teacher`).
