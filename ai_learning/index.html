@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibecoding Mastery – Hub de Formation & Projets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            darkbg: {
+              900: '#090d16',
+              850: '#0e1424',
+              800: '#141d33',
+              750: '#19233d',
+              700: '#1e2942',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Marked.js (Markdown parser) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <!-- Highlight.js for Code Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark-dimmed.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.2);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.4);
+    }
+
+    /* Markdown Styling */
+    .prose-custom {
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+    .prose-custom h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-top: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+      color: inherit;
+    }
+    .prose-custom h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-top: 2.25rem;
+      margin-bottom: 1rem;
+      color: inherit;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+      padding-bottom: 0.4rem;
+    }
+    .prose-custom h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: 1.75rem;
+      margin-bottom: 0.75rem;
+      color: #818cf8;
+    }
+    .prose-custom p {
+      margin-bottom: 1.15rem;
+      line-height: 1.75;
+      color: #94a3b8;
+    }
+    .dark .prose-custom p {
+      color: #cbd5e1;
+    }
+    .prose-custom ul, .prose-custom ol {
+      margin-bottom: 1.25rem;
+      padding-left: 1.5rem;
+      color: #cbd5e1;
+    }
+    .prose-custom ul { list-style-type: disc; }
+    .prose-custom ol { list-style-type: decimal; }
+    .prose-custom li { margin-bottom: 0.4rem; line-height: 1.6; }
+    
+    .prose-custom blockquote {
+      border-left: 4px solid #6366f1;
+      background: rgba(99, 102, 241, 0.08);
+      padding: 0.85rem 1.25rem;
+      border-radius: 0 0.75rem 0.75rem 0;
+      margin: 1.5rem 0;
+      color: #e2e8f0;
+      font-style: italic;
+    }
+    
+    .prose-custom table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1.5rem 0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    .prose-custom th {
+      background: rgba(99, 102, 241, 0.12);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.875rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    .prose-custom td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      font-size: 0.875rem;
+    }
+    .prose-custom tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .prose-custom a {
+      color: #818cf8;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .prose-custom a:hover {
+      color: #a5b4fc;
+    }
+    
+    .prose-custom code:not(pre code) {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.375rem;
+      font-size: 0.875em;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .reading-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      width: 0%;
+      z-index: 100;
+      transition: width 0.1s;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-darkbg-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+  
+  <div id="readingProgress" class="reading-bar"></div>
+
+  <!-- Top Navbar -->
+  <header class="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/90 dark:bg-darkbg-900/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Mobile Toggle -->
+      <div class="flex items-center gap-3">
+        <button id="mobileMenuBtn" aria-label="Ouvrir le menu" class="md:hidden p-2 rounded-xl bg-slate-100 dark:bg-darkbg-800 text-slate-700 dark:text-slate-300 hover:text-white hover:bg-brand-600 transition flex items-center gap-1.5">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+          <span class="text-xs font-semibold">Menu</span>
+        </button>
+        <div class="flex items-center gap-2.5 cursor-pointer" onclick="selectDoc('hub-accueil')">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/25">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <span class="font-bold text-base tracking-tight text-slate-900 dark:text-white">Vibecoding <span class="text-brand-500">Mastery</span></span>
+            <span class="hidden sm:inline-block ml-2 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/20">Guide & Lab</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Search Bar -->
+      <div class="flex-1 max-w-md hidden sm:block">
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Rechercher une leçon, prompt, git, vercel... (Ctrl+K)" 
+            class="w-full pl-10 pr-12 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-100/70 dark:bg-darkbg-800/80 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50 transition-all"
+          >
+          <kbd class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-slate-200 dark:bg-slate-700/60 rounded border border-slate-300 dark:border-slate-600">Ctrl+K</kbd>
+        </div>
+      </div>
+
+      <!-- Right Controls -->
+      <div class="flex items-center gap-2">
+        <button id="themeToggleBtn" title="Basculer le thème clair / sombre" class="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-darkbg-800 transition-colors">
+          <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+          <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
+        </button>
+        <span class="px-3 py-1 text-xs font-semibold rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 hidden lg:inline-flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Mode Local Actif
+        </span>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto w-full flex-1 flex px-4 sm:px-6 lg:px-8 relative">
+    
+    <!-- Sidebar Navigation (Always visible on desktop >= 768px, slide-over on mobile) -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-30 w-72 md:w-64 flex-shrink-0 pt-20 md:pt-6 pb-6 px-4 md:px-0 bg-white dark:bg-darkbg-900 md:bg-transparent border-r md:border-r-0 border-slate-200 dark:border-slate-800 overflow-y-auto transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out shadow-2xl md:shadow-none">
+      
+      <!-- Mobile Search inside Drawer -->
+      <div class="mb-4 sm:hidden">
+        <input 
+          type="text" 
+          id="mobileSearchInput" 
+          placeholder="Rechercher..." 
+          class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-darkbg-800 text-slate-900 dark:text-slate-100"
+        >
+      </div>
+
+      <nav id="navContainer" class="space-y-6 pr-2">
+        <!-- Rendered via JS -->
+      </nav>
+    </aside>
+
+    <!-- Overlay for mobile drawer -->
+    <div id="drawerOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-20 hidden md:hidden"></div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 min-w-0 py-6 md:py-8 md:pl-8">
+      
+      <!-- Article Header -->
+      <div class="mb-6 pb-6 border-b border-slate-200 dark:border-slate-800/80">
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <span id="docCategory" class="text-xs font-bold uppercase tracking-wider text-brand-400"></span>
+          <span class="text-slate-400 dark:text-slate-600">•</span>
+          <span id="docBadge" class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 dark:bg-darkbg-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"></span>
+          <span class="text-slate-400 dark:text-slate-600">•</span>
+          <span id="docReadingTime" class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 font-medium">
+            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+            <span></span>
+          </span>
+          <span class="text-slate-400 dark:text-slate-600 hidden sm:inline">•</span>
+          <span id="docFilePath" class="text-xs font-mono text-slate-400 truncate hidden sm:inline"></span>
+        </div>
+        <h1 id="docTitle" class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight"></h1>
+      </div>
+
+      <!-- Rendered Article Body -->
+      <article id="docBody" class="prose-custom max-w-none">
+        <!-- Content will be inserted here -->
+      </article>
+
+      <!-- Next / Previous Navigation -->
+      <div class="mt-12 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <button id="prevDocBtn" class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-darkbg-800 flex items-center gap-2 text-sm font-semibold transition cursor-pointer">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span id="prevDocLabel">Précédent</span>
+        </button>
+        <button id="nextDocBtn" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white flex items-center justify-center gap-2 text-sm font-semibold shadow-lg shadow-brand-500/20 transition cursor-pointer">
+          <span id="nextDocLabel">Suivant</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Toast Notification for Copy -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-12 opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xl text-xs font-semibold">
+    <i data-lucide="check" class="w-4 h-4 text-emerald-500"></i>
+    <span id="toastMsg">Copié dans le presse-papier !</span>
+  </div>
+
+  <!-- Embedded Data & Client Scripts -->
+  <script>
+    const DOCUMENTS = [{"id": "hub-accueil", "category": "Vue d'ensemble", "title": "Bienvenue sur le Hub", "badge": "Accueil", "icon": "home", "path": "README.md", "content": "# 🌟 Mon Espace de Travail : Vibecoding & Développement IA\n\nCe workspace est ton quartier général. Il est structuré en deux grands espaces complémentaires :\n\n```\nd:\\AI learning\\\n├── 📁 formation/     # 📚 Leçons théoriques, méthodologie, templates et fiches pratiques\n└── 📁 projets/       # 🛠️ Tes vraies applications, prototypes et missions clients\n```\n\n---\n\n## 🧭 Navigation Rapide\n\n### 1. [📚 Espace Formation](file:///d:/AI%20learning/formation/README.md)\nRetrouve l'ensemble des 7 modules essentiels pour maîtriser le vibecoding :\n* [Module 1 : Le Guide Ultime du Vibecoding](file:///d:/AI%20learning/formation/vibecode.md/README.md)\n* [Module 2 : L'Art du Prompting & Bibliothèque de Prompts](file:///d:/AI%20learning/formation/prompt.md/README.md)\n* [Module 3 : Le PRD (Cahier des Charges) & Modèle Officiel](file:///d:/AI%20learning/formation/prd.md/README.md)\n* [Module 4 : Maîtriser les Agents IA & Workflows Autonomes](file:///d:/AI%20learning/formation/ai_agent.md/README.md)\n* [Module 5 : Git & GitHub – Le Filet de Sécurité](file:///d:/AI%20learning/formation/git_workflow.md/README.md)\n* [Module 6 : La Stack Technique Idéale & Architecture](file:///d:/AI%20learning/formation/tech_stack.md/README.md)\n* [Module 7 : Mettre en Ligne & Déployer (Vercel & Supabase)](file:///d:/AI%20learning/formation/deployment.md/README.md)\n\n---\n\n### 2. [🛠️ Espace Projets](file:///d:/AI%20learning/projets/README.md)\nL'atelier pratique où tu créeras tes applications réelles.\n* [Consulter le guide de démarrage de projet](file:///d:/AI%20learning/projets/README.md)\n* Pour démarrer une application, crée simplement un sous-dossier dans `projets/` (ex: `projets/mon-app`).\n", "wordCount": 187, "readingTime": "1 min"}, {"id": "formation-hub", "category": "Formation", "title": "Curriculum & Feuille de Route", "badge": "Sommaire", "icon": "book-open", "path": "formation/README.md", "content": "# 🚀 Mon Hub d'Apprentissage Vibecoding & IA\n\nBienvenue dans ton centre de formation et de référence personnelle pour maîtriser l'ensemble de l'écosystème **Vibecoding**, développer des applications rapidement et réaliser des missions professionnelles de A à Z.\n\n---\n\n## 🧭 Le Curriculum Complet (7 Modules de Référence)\n\nCe cursus couvre l'intégralité du cycle de vie d'un produit : de l'idée brute au déploiement en ligne.\n\n| # | Module / Dossier | Thématique & Objectif | Fichiers Clés |\n| :-: | :--- | :--- | :--- |\n| **1** | [📁 `vibecode.md`](file:///d:/AI%20learning/formation/vibecode.md/README.md) | **Les Fondations du Vibecoding**<br>Adopter la posture de Chef d'Orchestre, les 6 règles d'or, le cycle de micro-itérations et la monétisation client. | [Leçon 1 : Guide Vibecoding](file:///d:/AI%20learning/formation/vibecode.md/README.md) |\n| **2** | [📁 `prompt.md`](file:///d:/AI%20learning/formation/prompt.md/README.md) | **L'Art du Prompting Technique**<br>Formule C.O.C.O.A, gestion de contexte avec `@`, protocole de débogage et modèles prêts à l'emploi. | [Leçon 2 : Prompting](file:///d:/AI%20learning/formation/prompt.md/README.md)<br>[📚 Bibliothèque de Prompts](file:///d:/AI%20learning/formation/prompt.md/prompt_library.md) |\n| **3** | [📁 `prd.md`](file:///d:/AI%20learning/formation/prd.md/README.md) | **Le PRD (Cahier des Charges)**<br>Pourquoi cadrer évite 80 % des bugs, technique de l'interview par l'IA et modèle réutilisable pour tout projet. | [Leçon 3 : Le PRD](file:///d:/AI%20learning/formation/prd.md/README.md)<br>[📑 Modèle Officiel de PRD](file:///d:/AI%20learning/formation/prd.md/template_prd.md) |\n| **4** | [📁 `ai_agent.md`](file:///d:/AI%20learning/formation/ai_agent.md/README.md) | **Les Agents IA & Workflows Autonomes**<br>Comprendre la boucle ReAct, le protocole MCP (bases de données, APIs), les sous-agents et la checklist de livraison. | [Leçon 4 : Agents Autonomes](file:///d:/AI%20learning/formation/ai_agent.md/README.md) |\n| **5** | [📁 `git_workflow.md`](file:///d:/AI%20learning/formation/git_workflow.md/README.md) | **Git & GitHub (Le Filet de Sécurité)**<br>Les 7 commandes de survie, comment annuler les bêtises d'un agent en 5 secondes, et la protection des secrets (`.env`). | [Leçon 5 : Git & GitHub](file:///d:/AI%20learning/formation/git_workflow.md/README.md) |\n| **6** | [📁 `tech_stack.md`](file:///d:/AI%20learning/formation/tech_stack.md/README.md) | **La Stack Technique Idéale**<br>Quelles technologies choisir pour maximiser l'efficacité de l'IA (Next.js, Tailwind, Supabase), et comprendre l'arborescence d'un projet. | [Leçon 6 : Stack & Architecture](file:///d:/AI%20learning/formation/tech_stack.md/README.md) |\n| **7** | [📁 `deployment.md`](file:///d:/AI%20learning/formation/deployment.md/README.md) | **Mettre en Ligne & Déployer**<br>Passer de `localhost` à une vraie URL publique avec Vercel, brancher une base Supabase cloud et lier un nom de domaine. | [Leçon 7 : Déploiement & Vercel](file:///d:/AI%20learning/formation/deployment.md/README.md) |\n\n---\n\n## 🎯 Feuille de Route Recommandée pour Débuter\n\n```\n   ┌────────────────────────────────────────────────────────┐\n   │ 1. ÉTAT D'ESPRIT & CADRAGE                             │\n   │    vibecode.md ──> prompt.md ──> prd.md               │\n   └───────────────────────────┬────────────────────────────┘\n                               │\n                               ▼\n   ┌────────────────────────────────────────────────────────┐\n   │ 2. SÉCURITÉ & ARCHITECTURE TECHNIQUE                   │\n   │    git_workflow.md ──> tech_stack.md                   │\n   └───────────────────────────┬────────────────────────────┘\n                               │\n                               ▼\n   ┌────────────────────────────────────────────────────────┐\n   │ 3. PRODUCTION & LIVRAISON                              │\n   │    ai_agent.md ──> deployment.md                       │\n   └───────────────────────────┬────────────────────────────┘\n                               │\n                               ▼\n                [ 🛠️ Atelier Pratique : d:/AI learning/projets/ ]\n```\n\n1. **Phase 1 (Préparation)** : Lis les leçons 1 à 3 pour apprendre à penser comme un architecte et cadrer tes projets avec un PRD avant d'écrire du code.\n2. **Phase 2 (Environnement)** : Maîtrise Git (Leçon 5) et configure ta stack (Leçon 6). Tu auras alors un environnement imperméable aux erreurs.\n3. **Phase 3 (Action & Mise en ligne)** : Utilise les agents autonomes (Leçon 4) pour coder brique par brique, puis mets ton projet en ligne sur Vercel (Leçon 7) pour le partager à tes clients ou au monde entier !\n", "wordCount": 503, "readingTime": "3 min"}, {"id": "lecon-1-vibecode", "category": "Formation", "title": "1. Le Guide Ultime du Vibecoding", "badge": "Module 1", "icon": "sparkles", "path": "formation/vibecode.md/README.md", "content": "# 🎧 Leçon 1 : Le Guide Ultime du Vibecoding\n\n> **\"Tu ne tapes plus le code, tu diriges l'orchestre.\"**  \n> Ce document est ta boussole pour comprendre la philosophie du *vibecoding*, éviter les erreurs classiques des débutants et construire des applications fiables rapidement.\n\n---\n\n## 1. Qu'est-ce que le Vibecoding ?\n\nLe terme **Vibecoding** (popularisé par Andrej Karpathy, ex-Directeur IA chez Tesla et cofondateur d'OpenAI) décrit une nouvelle manière de concevoir du logiciel :\n* **Avant** : Le développeur passait 80 % de son temps à chercher la syntaxe, écrire du code caractère par caractère et déboguer des points-virgules.\n* **Aujourd'hui (Vibecoder)** : L'IA écrit le code. Toi, tu agis en tant que **Chef de Produit (Product Manager)** et **Architecte Technique**. Tu exprimes une vision claire, tu structures le projet, tu testes le résultat, et tu corriges la trajectoire de l'agent.\n\n---\n\n## 2. Les 6 Règles d'Or du Vibecoder\n\n### Règle n°1 : Le principe des petits pas (Micro-itérations)\n> **Erreur n°1 du débutant :** Demander *\"Crée-moi un clone complet d'Airbnb avec paiement Stripe, messagerie instantanée et calendrier\"* en un seul prompt.\n* **Résultat garanti :** L'IA va créer des dizaines de fichiers à moitié finis, avec du code inventé, des bugs partout et un projet impossible à réparer.\n* **La bonne méthode :** Découpe tout en étapes de 5 à 15 minutes :\n  1. *Étape 1 :* Initialiser le projet et la page d'accueil avec un design épuré.\n  2. *Étape 2 :* Créer les composants de cartes d'annonces avec des fausses données (mock data).\n  3. *Étape 3 :* Ajouter le filtrage de recherche.\n  4. *Étape 4 :* Connecter la base de données.\n\n### Règle n°2 : Git est ton point de sauvegarde (Quick Save)\nConsidère Git comme la sauvegarde automatique d'un jeu vidéo difficile :\n* Dès qu'une fonctionnalité **marche** (ex: le bouton fonctionne, le formulaire s'affiche bien) : fais un commit Git (`git commit -m \"feat: formulaire de connexion fonctionnel\"`).\n* Si au prompt suivant l'IA casse tout et part dans une boucle infernale : **ne panique pas**. Tu peux revenir en 1 clic à ton dernier commit propre (`git reset --hard`).\n\n### Règle n°3 : Choisis une stack \"AI-friendly\"\nToutes les technologies ne se valent pas pour le vibecoding. Choisis des technologies ultra-populaires pour lesquelles les modèles d'IA ont ingéré des milliards d'exemples :\n* **Frontend** : React / Next.js, Vite + React, ou Tailwind CSS (l'IA excelle en Tailwind).\n* **Backend** : Node.js (Express / Fastify) ou Python (FastAPI).\n* **Base de données & Auth** : Supabase, Firebase ou SQLite/PostgreSQL avec Prisma ou Drizzle ORM.\n* **Composants UI préfaits** : shadcn/ui, Lucide Icons.\n\n### Règle n°4 : Ne jamais laisser l'IA deviner le contexte\nL'IA n'est pas télépathe. Si tu lui dis juste *\"ajoute le bouton de partage\"*, elle ne sait pas où le placer, quel style appliquer, ni quelle action déclencher.\n* Mentionne toujours les fichiers concernés (ex: `@Button.tsx`, `@Header.tsx`).\n* Indique le comportement attendu et les cas limites.\n\n### Règle n°5 : Savoir lire une erreur sans paniquer\nEn tant que débutant, quand un écran rouge s'affiche, applique cette routine :\n1. Copie l'intégralité du message d'erreur du terminal ou de la console du navigateur (F12).\n2. Fournis-le à l'IA en précisant ce que tu venais de faire.\n3. Ne dis jamais simplement *\"ça marche pas\"*. Dis : *\"J'ai cliqué sur le bouton X, j'attendais Y, mais j'ai obtenu cette erreur dans la console : [coller l'erreur]\"*.\n\n### Règle n°6 : La \"Règle des 3 essais\" (Kill the loop)\nSi tu demandes à l'IA de corriger un bug et qu'au bout de 3 échanges le bug persiste ou empire :\n* **Arrête la conversation.**\n* Fais un `git restore` pour revenir à l'état propre.\n* Repense ton explication ou donne-lui plus de détails (logs console, état des variables).\n* Recommence dans un nouveau chat ou avec un prompt reformulé.\n\n---\n\n## 3. Le cycle de vie d'un projet Vibecoding\n\n```\n┌─────────────┐     ┌──────────────┐     ┌─────────────┐     ┌──────────────┐\n│   1. Idée   │ ──> │    2. PRD    │ ──> │ 3. Maquette │ ──> │ 4. Découpage │\n│ (Quoi & Pourquoi)  │ (Cahier des charges)│ (Visuel/UI) │     │ (Checklist)  │\n└─────────────┘     └──────────────┘     └─────────────┘     └──────────────┘\n                                                                    │\n                                                                    ▼\n┌─────────────┐     ┌──────────────┐     ┌─────────────┐     ┌──────────────┐\n│  8. Déployer│ <── │ 7. Sauver    │ <── │  6. Tester  │ <── │ 5. Coder     │\n│  (Vercel/...) │     │ (Git Commit) │     │ (En local)  │     │ (Par brique) │\n└─────────────┘     └──────────────┘     └─────────────┘     └──────────────┘\n```\n\n---\n\n## 4. Conseils pour monétiser et répondre à des missions clients\n\nQuand tu réalises des projets pour des clients ou en freelance :\n1. **Ne vends pas ton temps, vends un résultat** : Grâce à l'IA, tu peux créer une landing page ou un MVP en 4 heures là où une agence met 3 semaines. Facture au forfait et à la valeur apportée.\n2. **La sécurité d'abord (Secrets & Clés API)** : Ne commit **JAMAIS** de clés API privées (OpenAI, Stripe, Supabase) dans un repo Git public. Utilise toujours des fichiers `.env` et ajoute `.env` dans ton `.gitignore`.\n3. **Livrables propres** : Fournis toujours un fichier `README.md` expliquant comment lancer le projet en 2 commandes (`npm install`, `npm run dev`).\n4. **Garde le contrôle du code** : Même si tu ne l'as pas écrit à la main, fais-toi expliquer par l'agent le rôle des composants principaux pour pouvoir répondre sereinement aux questions du client.\n", "wordCount": 897, "readingTime": "5 min"}, {"id": "lecon-2-prompt", "category": "Formation", "title": "2. L'Art du Prompting Technique", "badge": "Module 2", "icon": "terminal", "path": "formation/prompt.md/README.md", "content": "# ✍️ Leçon 2 : L'Art du Prompting pour le Code & les Agents\n\n> **\"Un bon prompt donne un code parfait. Un mauvais prompt donne 3 heures de débogage.\"**  \n> En vibecoding, ton prompt est ton code source. Cette leçon t'apprend la méthodologie exacte pour obtenir des réponses ultra-précises dès le premier coup.\n\n---\n\n## 1. La formule C.O.C.O.A (L'Anatomie du Prompt Parfait)\n\nChaque fois que tu formules une demande complexe à un agent ou un modèle, structure ta pensée avec ces 5 composantes :\n\n| Élément | Signification | Exemple concret |\n| :--- | :--- | :--- |\n| **C - Contexte** | Quel est le projet, la stack et l'état actuel ? | *\"Je développe une application React + Tailwind avec backend FastAPI...\"* |\n| **O - Objectif** | Que veux-tu accomplir exactement ? | *\"Ajouter un composant de carte produit interactif...\"* |\n| **C - Contraintes** | Quelles sont les règles à respecter absolument ? | *\"Ne modifie pas l'API existante, utilise Lucide Icons, design responsive mobile-first.\"* |\n| **O - Output** | Quel format de réponse ou modification attends-tu ? | *\"Crée un fichier `ProductCard.tsx` et mets à jour `ProductList.tsx`.\"* |\n| **A - Acceptation** | Comment sauras-tu que c'est réussi (critères) ? | *\"Au clic sur le bouton, une notification toast s'affiche et le panier s'incrémente.\"* |\n\n---\n\n## 2. Le Workflow de Contexte avec `@`\n\nNe colle pas des milliers de lignes de code manuellement dans le chat. Utilise les symboles de ciblage :\n* **`@nom-du-fichier`** : Injecte le contenu exact du fichier dans le contexte de l'agent.\n* **`@dossier`** : Permet à l'agent d'avoir une vision d'ensemble de l'arborescence.\n* **`@git`** : Donne à l'agent le contexte des derniers commits ou des fichiers modifiés.\n* **`@docs` ou `@url`** : Permet à l'agent de lire la documentation officielle d'une librairie au lieu d'inventer des fonctions qui n'existent pas.\n\n> **Règle essentielle :** Donne uniquement les fichiers pertinents. Trop de contexte dilue l'attention de l'IA (ce qu'on appelle la *pollution de contexte*).\n\n---\n\n## 3. Les 4 Modes de Prompting Indispensables\n\n### A. Le mode \"Plan d'abord, Code ensuite\" (Plan-and-Execute)\nAvant d'écrire une seule ligne de code pour une grosse fonctionnalité :\n> **Prompt type :** *\"Ne commence pas à écrire de code tout de suite. Analyse mon code actuel dans `@src` et propose un plan étape par étape en 4 ou 5 étapes pour implémenter l'authentification avec Supabase. Attends ma validation avant de commencer.\"*\n\n### B. Le protocole de débogage (One-Shot Debugging)\nQuand une erreur survient, applique ce modèle strict :\n```markdown\nJ'ai rencontré une erreur lors de l'exécution de la commande : `npm run dev`\n\n1. Ce que j'essayais de faire : Lancer le serveur local après avoir ajouté `@src/auth.ts`.\n2. L'erreur complète obtenue :\n```\n[Coller l'erreur brute complète ici, sans couper la stack trace]\n```\n3. Fichiers modifiés récemment : `@src/auth.ts`, `@src/App.tsx`.\n\nAnalyse la cause racine et propose la correction minimale nécessaire.\n```\n\n### C. Le mode \"Refactor & Clean\"\nPour garder une base de code propre que n'importe qui peut maintenir :\n> **Prompt type :** *\"Passe en revue `@src/components/Dashboard.tsx`. Découpe ce composant de 300 lignes en 3 sous-composants réutilisables plus petits dans le dossier `components/dashboard/`. Assure-toi que les props sont typées en TypeScript et conserve exactement le même comportement visuel.\"*\n\n### D. Le mode \"Documentation & Explication\" (Pour apprendre)\nLe vibecoding n'est pas seulement fait pour aller vite, c'est aussi un accélérateur d'apprentissage incroyable :\n> **Prompt type :** *\"Explique-moi pas à pas comment fonctionne la fonction `useCartStore` dans `@src/store.ts`. Utilise une analogie simple de la vie courante et détaille le rôle de chaque hook utilisé.\"*\n\n---\n\n## 4. Ce qu'il ne faut JAMAIS faire\n\n❌ *\"Fais marcher ça\"* (Sans fournir ni l'erreur ni le comportement attendu)  \n❌ *\"Ajoute une IA à mon site\"* (Beaucoup trop flou)  \n❌ Donner une capture d'écran d'un paragraphe d'erreur au lieu de copier-coller le texte (le texte permet la recherche exacte de symboles)  \n❌ Valider du code que tu n'as pas vu s'exécuter localement au moins une fois\n", "wordCount": 677, "readingTime": "4 min"}, {"id": "lecon-2-prompt-library", "category": "Formation", "title": "2b. Bibliothèque de Prompts", "badge": "Ressource", "icon": "copy", "path": "formation/prompt.md/prompt_library.md", "content": "# 📚 Bibliothèque de Prompts Prêts à l'Emploi\n\n> Copie, personnalise et colle ces prompts directement dans ton agent pour gagner un temps précieux.\n\n---\n\n### 1. Initialisation d'un nouveau projet\n```markdown\nAgis comme un Tech Lead Fullstack expérimenté. \nJe souhaite créer une application web appelée \"[Nom du projet]\".\nObjectif du projet : [Ex: Plateforme de réservation de cours de guitare pour débutants].\n\nVoici la stack technique souhaitée :\n- Frontend : Vite + React + TypeScript + Tailwind CSS\n- Icônes : Lucide-React\n- State Management : Zustand (ou React Context si simple)\n\nÉtape 1 : Donne-moi les commandes exactes à lancer dans mon terminal pour initialiser ce projet avec une structure de dossiers propre (`src/components`, `src/pages`, `src/hooks`, `src/types`).\nNe génère pas encore de code complexe, préparons d'abord la base.\n```\n\n---\n\n### 2. Ajout d'une fonctionnalité isolée\n```markdown\nEn te basant sur le fichier `@src/pages/Dashboard.tsx` et sur les types dans `@src/types/index.ts` :\n\nJe souhaite ajouter la fonctionnalité suivante :\n- Créer un composant modal de confirmation de suppression (`DeleteConfirmModal.tsx`).\n- Le composant doit recevoir en props : `isOpen`, `onClose`, `onConfirm`, `itemName`.\n- Style : Utilise Tailwind CSS avec un fond sombre translucide (`bg-black/50`), des coins arrondis (`rounded-xl`), et un bouton rouge d'action.\n- Accessibilité : La touche Echap (`Escape`) doit fermer la modale.\n\nCrée uniquement le fichier nécessaire et montre-moi comment l'importer dans le Dashboard.\n```\n\n---\n\n### 3. Résolution d'un bug complexe (Mode Enquête)\n```markdown\nJ'ai un comportement anormal dans l'application :\n- Comportement attendu : [Ex: Quand l'utilisateur clique sur \"Valider\", les données doivent être envoyées à l'API et l'utilisateur redirigé vers `/merci`].\n- Comportement réel observé : [Ex: Le bouton charge indéfiniment et aucune requête réseau n'apparaît dans l'onglet Network].\n- Fichiers concernés : `@src/components/CheckoutForm.tsx` et `@src/services/api.ts`.\n- Logs / Console : [Coller les éventuelles erreurs ici].\n\nNe réécris pas tout le code à l'aveugle. \n1. Formule d'abord une hypothèse sur l'origine du blocage.\n2. Propose des instructions de débogage (ex: `console.log` stratégiques) ou le correctif direct si la cause est évidente.\n```\n\n---\n\n### 4. Revue de code & Sécurité avant livraison client\n```markdown\nAgis comme un auditeur de code senior. \nFais une revue critique du code situé dans `@src/api/payment.ts`.\n\nVérifie spécifiquement :\n1. Y a-t-il des failles de sécurité potentielles (injections, clés API exposées côté client) ?\n2. La gestion des erreurs (`try/catch`) est-elle exhaustive pour éviter que l'application ne crash ?\n3. Le code respecte-t-il les bonnes pratiques TypeScript (pas de `any` injustifié) ?\n4. Liste les 3 améliorations prioritaires sous forme de bullet points.\n```\n\n---\n\n### 5. Conception du Schéma de Base de Données\n```markdown\nJe conçois la base de données relationnelle pour [Description de l'application].\nEntités principales :\n- Utilisateurs (Clients / Prestataires)\n- Réservations\n- Avis / Commentaires\n\nGénère le schéma SQL (compatible PostgreSQL / Supabase) avec :\n- Clés primaires UUID\n- Relations avec clés étrangères et `ON DELETE CASCADE` approprié\n- Index sur les colonnes fréquemment recherchées\n- Row Level Security (RLS) de base si pertinent\n```\n", "wordCount": 501, "readingTime": "3 min"}, {"id": "lecon-3-prd", "category": "Formation", "title": "3. Le PRD (Cahier des Charges)", "badge": "Module 3", "icon": "file-text", "path": "formation/prd.md/README.md", "content": "# 📄 Leçon 3 : Le PRD (Product Requirement Document)\n\n> **\"1 heure passée sur un bon PRD t'économise 15 heures de code jeté à la poubelle.\"**  \n> Le PRD est le document fondateur de tout projet sérieux. En vibecoding, il sert de « contrat de vérité » pour l'IA.\n\n---\n\n## 1. Pourquoi le PRD est l'arme secrète du Vibecoder ?\n\nQuand un débutant a une idée, son réflexe est souvent d'ouvrir son éditeur et d'écrire : *\"Fais-moi une application de gestion de stock pour restaurant\"*.\n* **Problème :** L'IA va inventer 80 % des règles métier à ta place : quel système d'authentification ? Quelles devises ? Y a-t-il des alertes de péremption ? Qui a le droit de supprimer un stock ?\n* **Conséquence :** Après 2 heures de génération de code, rien ne correspond à ce que tu imaginais vraiment, et le projet devient un sac de nœuds.\n\nLe **PRD (Product Requirement Document)** est un document court (1 à 3 pages) en markdown qui fixe les règles du jeu **avant** d'écrire la moindre ligne de code.\n\n---\n\n## 2. Les 7 sections d'un PRD taillé pour l'IA\n\nUn bon PRD destiné à une IA doit contenir :\n\n1. **Pitch & Vision** : Quel problème résout cette application, pour qui, et quelle est la proposition de valeur ?\n2. **User Stories (Cas d'usage)** : *\"En tant qu'utilisateur, je veux pouvoir...\"*\n3. **Périmètre (Scope) & Non-Scope** :\n   - ✅ Ce que le MVP **doit** faire absolument (indispensable).\n   - ❌ Ce qui est **hors-sujet** pour l'instant (ex: pas d'envoi de SMS, pas d'export PDF en v1).\n4. **Stack Technique & Choix d'Architecture** :\n   - Langages, frameworks, bibliothèques UI, base de données, services tiers (Stripe, Resend, Supabase).\n5. **Modèle de Données (Data Schema)** :\n   - Les entités (ex: `User`, `Project`, `Task`) et leurs champs clés.\n6. **Parcours Utilisateur & Écrans (UI/UX)** :\n   - Liste des pages (Accueil, Connexion, Dashboard, Profil) et ce qu'elles contiennent.\n7. **Critères d'Acceptation & Cas Limites (Edge Cases)** :\n   - Que se passe-t-il si la connexion coupe ? Si l'utilisateur saisit un mot de passe trop court ?\n\n---\n\n## 3. L'astuce pro : Faire écrire le PRD par l'IA (La technique de l'interview)\n\nTu n'as pas besoin de rédiger tout le document seul à la main ! Tu peux utiliser l'IA comme un Chef de Produit senior qui va t'interviewer.\n\n> **Prompt d'interview à copier :**  \n> *\"Je veux créer une application de [ton idée en 2 phrases].  \n> Agis comme un Product Manager d'élite. Pose-moi 5 questions ciblées, une par une, sur le fonctionnement métier, les utilisateurs cibles, et les contraintes techniques.  \n> À la fin de mes réponses, tu me rédigeras un PRD complet au format Markdown prêt pour le développement.\"*\n\n---\n\n## 4. Comment utiliser ton PRD pendant le développement ?\n\nUne fois ton fichier `PRD.md` placé à la racine de ton projet :\n* **Dans tes prompts :** Réfère-toi systématiquement au fichier :  \n  `\"En te basant sur la section 3 du @PRD.md, créons la première brique...\"`\n* **Si l'IA s'égare :** Rappelle-lui la source :  \n  `\"Attention, dans le @PRD.md nous avions convenu que le paiement se ferait via Stripe Checkout et non une intégration custom.\"`\n* **Pour faire le point :**  \n  `\"Compare le code actuel dans @src avec le @PRD.md et dresse la liste des fonctionnalités restantes pour terminer le MVP.\"`\n", "wordCount": 560, "readingTime": "3 min"}, {"id": "lecon-3-prd-template", "category": "Formation", "title": "3b. Modèle Officiel de PRD", "badge": "Template", "icon": "file-check", "path": "formation/prd.md/template_prd.md", "content": "# 📑 Modèle de PRD (Product Requirement Document)\n\n> *Copie ce fichier dans la racine de ton nouveau projet sous le nom `PRD.md` et remplis chaque section.*\n\n---\n\n## 1. Vue d'ensemble du Projet\n* **Nom du Projet** : [Nom de ton app]\n* **Pitch en 1 phrase** : [Une description simple et percutante]\n* **Public Cible** : [Ex: Développeurs freelances, restaurateurs, étudiants]\n* **Problème résolu** : [Quel problème pénible ce produit élimine-t-il ?]\n\n---\n\n## 2. Objectifs & Périmètre (Scope)\n\n### ✅ Inclus dans la V1 (MVP indispensable) :\n- [ ] Fonctionnalité 1 (ex: Inscription & Connexion par email)\n- [ ] Fonctionnalité 2 (ex: Création et édition d'un élément)\n- [ ] Fonctionnalité 3 (ex: Tableau de bord récapitulatif)\n\n### ❌ Exclu de la V1 (Pour plus tard) :\n- Système d'abonnement / Facturation\n- Thème clair/sombre personnalisable\n- Notifications push mobiles\n- Internationalisation (multi-langues)\n\n---\n\n## 3. Stack Technique Choisie\n* **Frontend** : React / Next.js (App Router), TypeScript\n* **Styling & UI** : Tailwind CSS, Lucide Icons, shadcn/ui\n* **Backend & API** : Server Actions / Routes API REST\n* **Base de données** : PostgreSQL via Supabase (ou SQLite local pour le dev)\n* **Authentification** : Supabase Auth (Email / Mot de passe)\n* **Hébergement / Déploiement** : Vercel\n\n---\n\n## 4. Modèle de Données (Entities & Schemas)\n\n```typescript\n// Exemple de structures attendues :\ninterface User {\n  id: string; // UUID\n  email: string;\n  name: string;\n  createdAt: Date;\n}\n\ninterface Item {\n  id: string;\n  userId: string; // Clé étrangère vers User\n  title: string;\n  status: 'pending' | 'in_progress' | 'completed';\n  dueDate?: Date;\n}\n```\n\n---\n\n## 5. Parcours & Écrans Utilisateur (UI/UX)\n1. **Écran d'accueil / Landing (`/`)** : Présentation du service avec un bouton \"Commencer\".\n2. **Page d'authentification (`/login`)** : Formulaire simple (Email, Mot de passe).\n3. **Tableau de bord (`/dashboard`)** :\n   - Barre latérale avec navigation.\n   - Liste des éléments avec filtres (Tous, En cours, Terminés).\n   - Bouton flottant pour ajouter un élément via une modale.\n\n---\n\n## 6. Règles Métier & Cas Limites (Edge Cases)\n* Un utilisateur ne doit jamais pouvoir voir ou modifier les données d'un autre utilisateur.\n* Le formulaire doit refuser les titres de moins de 3 caractères avec un message d'erreur clair.\n* En cas d'erreur réseau, afficher une notification toast discrète avec option de réessai.\n", "wordCount": 388, "readingTime": "2 min"}, {"id": "lecon-4-ai-agent", "category": "Formation", "title": "4. Agents IA & Workflows Autonomes", "badge": "Module 4", "icon": "bot", "path": "formation/ai_agent.md/README.md", "content": "# 🤖 Leçon 4 : Maîtriser les Agents IA & les Workflows Autonomes\n\n> **\"Un chatbot répond à tes questions. Un Agent résout tes problèmes.\"**  \n> Comprendre la mécanique des agents autonomes est la compétence la plus puissante pour démultiplier ta productivité de vibecoder.\n\n---\n\n## 1. Chatbot classique vs Agent IA : La vraie différence\n\nBeaucoup de débutants confondent un simple modèle de chat (comme ChatGPT dans le navigateur) et un **Agent IA** (comme Antigravity, Claude Code, ou Devin) :\n\n| Caractéristique | Chatbot classique | Agent IA Autonome |\n| :--- | :--- | :--- |\n| **Accès aux fichiers** | Copier-coller manuel uniquement | Lit, crée et modifie directement tes fichiers |\n| **Terminal / Commandes** | Te donne une commande à copier | Exécute lui-même `npm install`, `git commit`, lance les tests |\n| **Boucle d'action** | 1 question = 1 réponse | **ReAct** (Raisonnement ➔ Action ➔ Observation ➔ Décision) |\n| **Débogage** | Attend que tu lui rapportes l'erreur | Lance le build, lit l'erreur, et corrige lui-même le fichier |\n| **Outils externes** | Aucun | Peut naviguer sur le web, interroger une BDD via **MCP** |\n\n---\n\n## 2. La posture mentale : Devenir le \"Lead Developer\" de l'agent\n\nPense à l'agent comme à un **développeur junior surdoué mais distrait** :\n* Il est hyper rapide, connaît des milliers de technologies, et ne dort jamais.\n* Mais si tu ne lui donnes pas de directives claires ou de garde-fous, il peut facilement s'emballer, installer des librairies inutiles ou modifier des fichiers qu'il ne devrait pas toucher.\n\n### Ta responsabilité en tant que vibecoder :\n1. **Définir l'objectif clair** (Quoi faire et où s'arrêter).\n2. **Fournir les règles du jeu** (ex: *\"utilise Tailwind, pas de CSS custom\"*).\n3. **Surveiller les actions critiques** (création de migrations SQL, suppressions de fichiers, commandes destructives).\n4. **Valider le résultat** dans ton navigateur ou ton application.\n\n---\n\n## 3. Le Protocole MCP (Model Context Protocol)\n\nLe **MCP** est le standard universel qui permet à un agent IA de se connecter à n'importe quel service extérieur :\n* **Base de données** : Se connecter directement à ta base PostgreSQL pour exécuter des requêtes ou inspecter les tables.\n* **Navigateur (Puppeteer/Playwright)** : Permettre à l'agent d'ouvrir un navigateur réel, de cliquer sur ton site et de vérifier que tout fonctionne.\n* **GitHub** : Créer automatiquement des Pull Requests, cloner des dépôts, ou gérer les issues.\n* **Figma** : Lire directement les maquettes graphiques pour générer le code React pixel-perfect.\n\n---\n\n## 4. Multi-agents et Tâches en arrière-plan (Background Tasks)\n\nDans les environnements modernes comme Antigravity :\n* **Sous-agents (Subagents)** : Tu peux confier une tâche de recherche ou de refactorisation à un sous-agent qui travaille en parallèle pendant que tu continues de coder avec ton agent principal.\n* **Exécution en arrière-plan** : Des commandes longues (téléchargements, compilation, scraping) tournent en tâche de fond sans bloquer la conversation.\n* **Tâches planifiées (Cron / Schedules)** : Possibilité de programmer des tâches de maintenance récurrentes (sauvegarde, audit de code, vérification de liens cassés).\n\n---\n\n## 5. Checklist de livraison d'un projet réalisé avec un Agent\n\nAvant de considérer qu'une mission ou une application est terminée :\n- [ ] **Build réussi** : Lancer la commande de build (`npm run build`) pour vérifier qu'aucune erreur TypeScript ou de syntaxe ne bloque la production.\n- [ ] **Nettoyage des logs** : Supprimer les `console.log` de test inutiles.\n- [ ] **Fichier `.env.example`** : Créer un fichier modèle sans valeurs sensibles pour que le client ou un autre développeur sache quelles variables configurer.\n- [ ] **Documentation de démarrage (`README.md`)** : Inclure les étapes précises :\n  1. Prérequis (Node version, Python version).\n  2. Installation des dépendances.\n  3. Lancement en local.\n- [ ] **Commit Git propre** : Un dépôt propre avec un historique de commits lisible.\n", "wordCount": 640, "readingTime": "4 min"}, {"id": "lecon-5-git", "category": "Formation", "title": "5. Git & GitHub (Filet de Sécurité)", "badge": "Module 5", "icon": "git-branch", "path": "formation/git_workflow.md/README.md", "content": "# 🐙 Leçon 5 : Git & GitHub – Le Filet de Sécurité du Vibecoder\n\n> **\"Un vibecoder sans Git est un funambule sans filet de sécurité.\"**  \n> Avec l'IA, tu vas modifier des centaines de lignes de code en quelques secondes. Savoir sauvegarder et annuler instantanément une mauvaise manipulation est ta compétence de survie numéro 1.\n\n---\n\n## 1. Pourquoi Git est indispensable pour le Vibecoding ?\n\nQuand un agent d'IA écrit du code :\n* **90 % du temps** : Il produit un travail remarquable et rapide.\n* **10 % du temps** : Il tente de résoudre un problème, s'égare, commence à modifier des fichiers sans rapport et casse des fonctionnalités qui marchaient 5 minutes plus tôt.\n\nSi tu n'utilises pas Git, tu te retrouves à faire `Ctrl + Z` désespérément dans 12 onglets différents.  \nAvec Git, **un simple clic ou une seule commande te ramène à la seconde exacte où tout fonctionnait**.\n\n---\n\n## 2. Les 7 Commandes Git à connaître par cœur\n\n| Commande | À quoi ça sert ? | Quand l'utiliser ? |\n| :--- | :--- | :--- |\n| `git status` | Voir l'état actuel | Savoir quels fichiers ont été créés ou modifiés par l'agent. |\n| `git add .` | Préparer la sauvegarde | Ajouter toutes les modifications prêtes à être sauvegardées. |\n| `git commit -m \"mon message\"` | Créer un point de sauvegarde | Dès qu'une fonctionnalité marche (ex: *\"feat: bouton login fonctionnel\"*). |\n| `git log --oneline` | Voir l'historique | Visualiser la liste de tes points de sauvegarde récents. |\n| `git restore .` | **Annulation d'urgence (Fichiers)** | L'agent a fait n'importe quoi sur des fichiers non commités ? Cette commande efface ses bêtises et remet tout à propre ! |\n| `git push` | Envoyer sur GitHub | Sauvegarder ton code dans le cloud et déclencher le déploiement. |\n| `git pull` | Récupérer les nouveautés | Synchroniser le code depuis GitHub sur ton ordinateur. |\n\n---\n\n## 3. Le scénario d'urgence : L'IA a tout cassé, que faire ?\n\n### Scénario A : Tu n'as pas encore fait de commit\nL'agent vient d'effectuer des modifications qui ne fonctionnent pas du tout :\n```bash\n# Annule toutes les modifications non sauvegardées sur les fichiers existants\ngit restore .\n\n# Supprime les nouveaux fichiers créés inutilement par l'agent\ngit clean -fd\n```\n*Magie : Ton projet revient instantanément à son état initial parfait.*\n\n### Scénario B : Tu as déjà fait un commit foireux\nTu veux revenir au commit précédent :\n```bash\n# Revenir en arrière d'un commit en effaçant les modifications\ngit reset --hard HEAD~1\n```\n\n---\n\n## 4. La règle absolue : Le fichier `.gitignore` et les secrets\n\nNe mets **JAMAIS** tes clés d'API (OpenAI, Stripe, Supabase, etc.) sur GitHub.\n\n1. Range toutes tes clés dans un fichier nommé **`.env`** ou **`.env.local`** :\n   ```env\n   SUPABASE_KEY=eyJh...\n   OPENAI_API_KEY=sk-proj-...\n   ```\n2. Crée un fichier nommé **`.gitignore`** à la racine de ton projet et écris-y :\n   ```gitignore\n   node_modules/\n   .env\n   .env.local\n   .env.*.local\n   dist/\n   build/\n   .DS_Store\n   ```\n3. Crée un fichier **`.env.example`** sans tes vraies clés pour documenter ce qui est requis :\n   ```env\n   SUPABASE_KEY=votre_cle_ici\n   OPENAI_API_KEY=votre_cle_ici\n   ```\n\n---\n\n## 5. Comment créer et lier ton projet à GitHub (Pas à pas)\n\n1. Initialise Git dans ton dossier local :\n   ```bash\n   git init\n   git add .\n   git commit -m \"Initial commit\"\n   ```\n2. Va sur [github.com](https://github.com) et crée un nouveau dépôt vide (nommé par exemple `mon-projet`).\n3. Lie ton dossier local et envoie ton code :\n   ```bash\n   git branch -M main\n   git remote add origin https://github.com/ton-profil/mon-projet.git\n   git push -u origin main\n   ```\n4. Ton projet est désormais en sécurité dans le cloud et prêt pour être déployé !\n", "wordCount": 618, "readingTime": "3 min"}, {"id": "lecon-6-tech-stack", "category": "Formation", "title": "6. La Stack Technique Idéale", "badge": "Module 6", "icon": "layers", "path": "formation/tech_stack.md/README.md", "content": "# 🛠️ Leçon 6 : La Stack Technique Idéale du Vibecoder\n\n> **\"Toutes les technologies ne sont pas égales face à l'IA. Choisir les bons outils multiplie la vitesse et la précision de l'agent par 10.\"**  \n> Cette leçon t'aide à choisir les briques logicielles les plus efficaces pour tes projets et à comprendre la structure d'une application moderne.\n\n---\n\n## 1. Qu'est-ce qu'une \"Stack AI-Friendly\" ?\n\nLes modèles d'IA récents (Gemini, Claude, GPT) ont été entraînés sur des millions de dépôts GitHub. Plus une technologie est populaire, moderne et documentée, plus l'IA sera performante pour générer du code sans bug.\n\n| Critère | ✅ À privilégier (AI-Friendly) | ❌ À éviter pour débuter en vibecoding |\n| :--- | :--- | :--- |\n| **Design / CSS** | **Tailwind CSS** (l'IA génère du design magnifique en une seule ligne) | CSS pur avec 15 fichiers `.css` séparés (dur à synchroniser) |\n| **Composants UI** | **shadcn/ui**, **Lucide Icons** (composants accessibles et modernes) | Librairies vieillissantes ou avec composants obscurs |\n| **Frontend** | **React / Next.js** ou **Vite + React** (énorme volume de données d'entraînement) | Frameworks exotiques ou trop récents |\n| **Base de données** | **Supabase** (PostgreSQL + Auth + Stockage avec interface visuelle) | Configurer un serveur SQL manuellement en local |\n| **Backend & API** | **Next.js Route Handlers** ou **FastAPI (Python)** | Architectures complexes en microservices |\n\n---\n\n## 2. Les 3 Stacks de Référence selon ton Projet\n\n### 🅰️ La Stack n°1 : Le Couteau Suisse Web & SaaS (Recommandée à 80 %)\n*Pour : Créer une plateforme, un outil SaaS avec connexion utilisateur, un tableau de bord ou une marketplace.*\n* **Framework** : **Next.js** (App Router) ou **Vite + React + TypeScript**\n* **Style** : **Tailwind CSS** + **shadcn/ui**\n* **Icônes** : **lucide-react**\n* **Base de données & Auth** : **Supabase** (gratuit, prêt en 2 minutes)\n* **Paiement (si payant)** : **Stripe** (Checkout)\n* **Hébergement** : **Vercel**\n\n### 🅱️ La Stack n°2 : Backend, Automatisations & Agents IA\n*Pour : Un bot WhatsApp/Telegram, un script de scraping, une API de traitement de texte ou de données.*\n* **Langage** : **Python 3.11+**\n* **Framework API** : **FastAPI** (génère la documentation Swagger automatiquement)\n* **Validation de données** : **Pydantic**\n* **Base de données** : **SQLite** (débutant) ou **PostgreSQL**\n* **Hébergement** : **Render** ou **Railway**\n\n### 🅲️ La Stack n°3 : Landing Page Ultra-Rapide\n*Pour : Un site vitrine, une page de vente ou un portfolio sans base de données complexe.*\n* **Framework** : **Astro** ou **HTML + Tailwind CSS**\n* **Formulaire de contact** : **Resend** ou **Formspree**\n\n---\n\n## 3. L'anatomie d'un projet moderne (Comprendre les dossiers)\n\nQuand un agent crée un projet, voici à quoi servent les dossiers principaux :\n\n```\nmon-projet/\n├── public/              # Fichiers statiques (images, logo.svg, favicon)\n├── src/                 # Tout le code source de ton application\n│   ├── app/ (ou pages/) # Les différentes pages / routes de ton site (ex: /login, /dashboard)\n│   ├── components/      # Les blocs réutilisables (Bouton, Carte, Navbar, Footer)\n│   ├── hooks/           # Fonctions utilitaires React personnalisées (ex: useAuth)\n│   ├── lib/             # Configurations des services tiers (ex: client Supabase, Stripe)\n│   └── types/           # Définitions TypeScript pour sécuriser les données\n├── .env.local           # Tes variables secrètes locales (clés d'API)\n├── .gitignore           # Liste des fichiers que Git ne doit jamais envoyer sur GitHub\n├── package.json         # Carte d'identité du projet et liste des librairies installées\n└── tailwind.config.js   # Configuration graphique (couleurs personnalisées, polices)\n```\n\n---\n\n## 4. Gérer les variables d'environnement (`.env`)\n\nToutes les applications réelles ont besoin de clés secrètes :\n1. **En local sur ton PC** : Range-les dans un fichier `.env.local` (ou `.env`).\n2. **Comment l'application les lit ?**\n   - Côté Next.js / Node : `process.env.OPENAI_API_KEY`\n   - Côté Vite : `import.meta.env.VITE_API_URL`\n   - Côté Python : `os.getenv(\"OPENAI_API_KEY\")`\n3. **Sécurité vitale** : Une variable préfixée par `NEXT_PUBLIC_` ou `VITE_` sera visible dans le navigateur de n'importe quel visiteur. Ne mets jamais une clé privée avec ce préfixe !\n", "wordCount": 666, "readingTime": "4 min"}, {"id": "lecon-7-deployment", "category": "Formation", "title": "7. Mettre en Ligne & Déployer", "badge": "Module 7", "icon": "globe", "path": "formation/deployment.md/README.md", "content": "# 🚀 Leçon 7 : Mettre en Ligne & Déployer son Projet\n\n> **\"Un projet qui ne tourne que sur `localhost` n'existe pas pour tes utilisateurs ou tes clients.\"**  \n> Déployer une application moderne ne nécessite plus de gérer des serveurs compliqués. En 2026, mettre une application en ligne prend 3 minutes et ne coûte rien au démarrage.\n\n---\n\n## 1. La Sainte Trinité du Déploiement Gratuit\n\nPour héberger une application complète à 0 € de coût fixe :\n\n```\n┌─────────────────────────┐          ┌─────────────────────────┐\n│     Code Source         │          │     Hébergement Web     │\n│       GitHub            │ ───────> │         Vercel          │\n│  (Sauvegarde du code)   │  (Sync)  │  (Frontend & Next.js)   │\n└─────────────────────────┘          └─────────────────────────┘\n                                                  │\n                                                  ▼\n                                     ┌─────────────────────────┐\n                                     │     Base de Données     │\n                                     │        Supabase         │\n                                     │  (Postgres, Auth, Files)│\n                                     └─────────────────────────┘\n```\n\n* **GitHub** : Héberge ton code et déclenche la mise en ligne automatique dès que tu fais un `git push`.\n* **Vercel** : Construit et héberge ton application web, distribue ton site sur un CDN mondial et gère le HTTPS automatiquement.\n* **Supabase** : Fournit une vraie base de données PostgreSQL dans le cloud, avec authentification et stockage de fichiers.\n\n---\n\n## 2. Déployer sur Vercel en 4 Étapes Chrono\n\n1. **Rends-toi sur [Vercel.com](https://vercel.com)** et connecte-toi avec ton compte **GitHub**.\n2. Clique sur **\"Add New...\"** > **\"Project\"**.\n3. Sélectionne ton dépôt GitHub dans la liste et clique sur **\"Import\"**.\n4. **Très Important (Variables d'environnement)** :\n   - Déroule la section **\"Environment Variables\"**.\n   - Copie-colle toutes les variables de ton fichier `.env` local (ex: clés Supabase, clés Stripe).\n5. Clique sur **\"Deploy\"** !\n6. En moins de 2 minutes, Vercel te donne une URL sécurisée (ex: `https://mon-application.vercel.app`) accessible au monde entier.\n\n> **Le superpouvoir de Vercel :** Chaque fois que tu feras `git push` pour ajouter une fonctionnalité, Vercel redéploiera automatiquement ton site à jour en arrière-plan sans aucune coupure de service.\n\n---\n\n## 3. Connecter un Nom de Domaine Personnalisé\n\nPour un projet professionnel ou une mission client (ex: `monprojet.fr` au lieu de `monprojet.vercel.app`) :\n1. Achète un nom de domaine sur un registrar réputé (ex: **Namecheap**, **Cloudflare**, ou **OVH**) pour environ 8 à 12 € / an.\n2. Dans Vercel, va dans **Settings** > **Domains** > Ajoute ton domaine.\n3. Vercel t'indiquera deux lignes à copier dans la zone DNS de ton registrar :\n   - Un enregistrement **A** pointant vers l'IP de Vercel (`76.76.21.21`).\n   - Un enregistrement **CNAME** pour le sous-domaine `www` (`cname.vercel-dns.com`).\n4. Vercel génère automatiquement un certificat SSL (cadenas vert HTTPS) sans configuration manuelle.\n\n---\n\n## 4. Checklist Pré-Lancement & Livraison Client\n\nAvant de partager le lien final à un client ou à tes premiers utilisateurs, vérifie ces 6 points :\n\n- [ ] **Test Mobile** : Ouvre le site sur ton smartphone (ou via l'inspecteur F12 en mode mobile). Les textes se lisent-ils bien ? Les boutons sont-ils facilement cliquables ?\n- [ ] **Variables d'environnement** : Toutes les clés API de production sont-elles bien renseignées dans Vercel ?\n- [ ] **Favicon & Titre d'onglet** : Remplace le logo par défaut (ex: le logo React ou Vercel) par ton propre logo et vérifie le titre de la page dans le navigateur.\n- [ ] **Formulaires & Boutons** : Envoie un message de test ou crée un compte pour t'assurer que les données arrivent bien en base.\n- [ ] **Page 404** : Vérifie qu'une fausse URL (ex: `site.com/azerty`) affiche une page d'erreur conviviale avec un bouton de retour à l'accueil.\n- [ ] **Vitesse de chargement** : Teste ton lien sur [pagespeed.web.dev](https://pagespeed.web.dev) pour t'assurer que le site charge rapidement.\n", "wordCount": 590, "readingTime": "3 min"}, {"id": "projets-hub", "category": "Projets", "title": "Guide de Démarrage des Projets", "badge": "Atelier", "icon": "folder-git-2", "path": "projets/README.md", "content": "# 💻 Espace Projets : L'Atelier Pratique\n\n> C'est ici que tu passes de la théorie à la pratique ! Chaque sous-dossier de ce répertoire sera une véritable application que tu construis, testes et déploies.\n\n---\n\n## 🛠️ Comment lancer ton tout premier projet (Workflow en 5 étapes)\n\nQuand tu as une idée de projet (ex: un outil SaaS, une to-do list intelligente, un clone d'application, un site vitrine) :\n\n### 1. Crée un sous-dossier pour ton projet\nCrée un nouveau dossier dans `projets/` avec le nom de ton application (ex: `projets/mon-premier-saas`).\n\n### 2. Copie le modèle de PRD\nCopie le fichier [template_prd.md](file:///d:/AI%20learning/formation/prd.md/template_prd.md) et colle-le dans ton nouveau dossier sous le nom `PRD.md`.  \nRemplis les sections essentielles (ou utilise le prompt d'interview de la Leçon 3 pour le faire avec l'IA).\n\n### 3. Initialise le projet et Git\nOuvre ton terminal dans le dossier du projet et initialise la stack (ex: Next.js + Tailwind) et Git :\n```bash\ngit init\ngit add .\ngit commit -m \"feat: initialisation du projet\"\n```\n\n### 4. Code brique par brique avec l'Agent\nOuvre le panneau Antigravity et guide l'agent étape par étape en utilisant les prompts de la [Bibliothèque de Prompts](file:///d:/AI%20learning/formation/prompt.md/prompt_library.md).\n* Fais un commit Git après chaque fonctionnalité terminée.\n\n### 5. Déploie sur Vercel\nEnvoie ton code sur GitHub (`git push`) et connecte ton dépôt à Vercel en suivant la [Leçon 7 : Déploiement](file:///d:/AI%20learning/formation/deployment.md/README.md).\n\n---\n\n## 💡 3 Idées de projets idéaux pour débuter :\n1. **Le \"Markdown Note / Todo Tracker\"** : Une application simple avec sauvegarde locale pour te familiariser avec les composants React et Tailwind CSS.\n2. **Le \"Générateur de Posts Réseaux Sociaux\"** : Une app connectée à l'API Gemini / OpenAI qui génère des posts LinkedIn ou Twitter à partir d'un sujet donné.\n3. **Le \"Portfolio Personnel / Landing Page\"** : Ton futur site de freelance pour présenter tes compétences et tes réalisations à tes futurs clients.\n", "wordCount": 319, "readingTime": "2 min"}, {"id": "recap-fluent", "category": "Rétrospectives & Projets", "title": "🏮 Rétrospective : Projet Fluent Mandarin", "badge": "Masterclass", "icon": "award", "path": "recap/enseignement_projet_fluent.md", "content": "# 🏮 Enseignements & Rétrospective Complète : Projet Fluent Mandarin\n> **Du concept initial au déploiement en production : Architecture, Stack, Erreurs de parcours et Guide du Vibecoder d'Élite.**  \n> *Fichier de référence pour capitaliser sur l'expérience et construire de futures applications 10x plus vite.*\n\n---\n\n## 📑 Sommaire\n1. [Vue d'ensemble du Projet : De A à Z](#1-vue-densemble-du-projet--de-a-à-z)\n2. [La Stack Technique Expliquée & Justifiée](#2-la-stack-technique-expliquée--justifiée)\n3. [Les 4 Espaces Fonctionnels Clés](#3-les-4-espaces-fonctionnels-clés)\n4. [Analyse Post-Mortem : Ce qui a ralenti la cadence (Pièges & Erreurs Bêtes)](#4-analyse-post-mortem--ce-qui-a-ralenti-la-cadence-pièges--erreurs-bêtes)\n5. [Le Guide du \"Vibecoder\" d'Élite : Comment sortir ce site en 2 heures](#5-le-guide-du-vibecoder-délite--comment-sortir-ce-site-en-2-heures)\n6. [La Bibliothèque de Prompts d'Architecture (À réutiliser)](#6-la-bibliothèque-de-prompts-darchitecture-à-réutiliser)\n\n---\n\n## 1. Vue d'ensemble du Projet : De A à Z\n\n### Le Problème Réel\nLa quasi-totalité des apprenants de langues (notamment en mandarin HSK 3-4) se heurtent à un mur appelé **« l'illusion de compétence d'Anki »** :\n* On connaît 1 000 cartes par cœur.\n* Mais face à un natif, impossible d'aligner trois phrases fluides, car on ne maîtrise pas les **nuances structurelles** (`了`, `过`, `把`, `再` vs `又`) ni la musique de la phrase.\n* Les apps commerciales (Duolingo, etc.) infantiluent avec des QCM, tandis que les cours théoriques noient l'élève sous un jargon grammatical hermétique.\n\n### La Solution Construite : Fluent\nUne application web interactive, responsive (PC, tablette, iPhone) et **100 % gratuite** (zéro abonnement, zéro API payante), pensée comme un **cockpit d'expression active** :\n1. **Lier le vocabulaire Anki** existant de l'utilisateur directement à l'app.\n2. **Générer des histoires immersives** créées sur-mesure autour de ses propres cartes Anki (inspiration Maayot).\n3. **Corriger l'expression orale en temps réel** caractère par caractère au micro.\n4. **Synchroniser la progression sans effort** entre PC et iPhone via le Cloud Supabase sans fichier à manipuler.\n\n---\n\n## 2. La Stack Technique Expliquée & Justifiée\n\nChaque technologie a été sélectionnée pour éliminer les frais mensuels et maximiser l'autonomie :\n\n| Composant | Technologie Choisie | Pourquoi ce choix ? | Alternatives rejetées |\n| :--- | :--- | :--- | :--- |\n| **Framework UI** | **React 18 + TypeScript** | Typage strict pour éviter les bugs d'état, écosystème mature, composants modulaires. | Vanilla JS (trop fragile pour un projet complexe). |\n| **Bundler / Outillage** | **Vite 5** | Démarrage à chaud en 200ms, compilation de production ultra-légère (`dist`), proxy API natif. | Create-React-App (obsolète, lourd). |\n| **Design & Styling** | **Tailwind CSS + CSS Variables** | Permet de construire les 2 univers (**Mode Encre 📜** et **Mode Sombre 🌙**) sans alourdir le code. | UI Libraries lourdes (MUI, Chakra) qui rigidifient le design. |\n| **Reconnaissance Vocale** | **Web Speech API (`zh-CN`)** | **0 € de coût**. Moteur de reconnaissance vocale natif du navigateur, haute fidélité pour le mandarin standard. | Whisper API payante d'OpenAI (nécessite une CB et un serveur backend). |\n| **Synthèse Vocale (TTS)** | **SpeechSynthesis + Multi-Voix** | Permet de basculer instantanément entre **Voix Féminines** (clarté) et **Voix Masculines** (résonance) ou en mode alterné pour habituer l'oreille. | ElevenLabs (très cher à l'usage). |\n| **Backend & Base Cloud** | **Supabase (PostgreSQL + RLS)** | Base de données Cloud relationnelle gratuite, REST API instantanée, synchronisation temps réel sans coder d'API en Node/Express. | Firebase (moins flexible en SQL), LocalStorage seul (ne synchronise pas le téléphone). |\n| **Liaison Anki** | **AnkiConnect (Port 8765)** | Standard mondial open-source permettant de lire les decks Anki locaux de l'utilisateur. | Export CSV manuel pénible. |\n| **Hébergement & Prod** | **Vercel + GitHub Actions** | Déploiement mondial avec CDN ultra-rapide, HTTPS automatique, support PWA iPhone. | Serveur VPS payant (OVH/AWS) qui demande de la maintenance Linux. |\n\n---\n\n## 3. Les 4 Espaces Fonctionnels Clés\n\n```\n┌───────────────────────────────────────────────────────────────────────────────┐\n│                           COCKPIT FLUENT MANDARIN                             │\n├───────────────────┬───────────────────┬───────────────────┬───────────────────┤\n│  1. ACCUEIL GUIDÉ │   2. HISTOIRES    │   3. LABO VOCAL   │   4. CURRICULUM   │\n│   • Daily Hanzi   │   • Lecteur Maayot│   • Micro direct  │   • 5 Modules     │\n│   • Widget Apple  │   • Pop-up dico   │   • Feedback vert/│   • 18 Nuances    │\n│   • SRS 3 étapes  │   • Générateur    │     rouge         │   • Démarche      │\n│   • Streak jours  │     d'histoires   │   • Double modèle │     mentale       │\n│                   │     sur-mesure    │     homme/femme   │     chinoise      │\n└───────────────────┴───────────────────┴───────────────────┴───────────────────┘\n```\n\n1. **Accueil Guidé & Daily Hanzi** :\n   - Résout la fatigue décisionnelle en donnant 1 seule priorité par jour.\n   - Intégration iPhone : fichier `.ics` Apple Calendar pour avoir le Hanzi du jour directement sur l'écran verrouillé et l'Apple Watch.\n2. **Espace Histoires (Style Maayot)** :\n   - Lecture immersive avec bascule Pinyin/Traduction en 1 clic.\n   - Dictionnaire instantané au clic sur chaque caractère.\n   - Bouton exclusif : *« Créer une histoire avec mes mots Anki »*.\n3. **Labo Vocal (Voice Coach Lab)** :\n   - Prononciation de phrases complètes en situation.\n   - Algorithme d'alignement phonétique caractère par caractère.\n4. **Curriculum 5 Modules** :\n   - Démystification des blocages typiques francophones (`了1/2`, `把`, `过`, `再/又`).\n\n---\n\n## 4. Analyse Post-Mortem : Ce qui a ralenti la cadence (Pièges & Erreurs Bêtes)\n\nConstruire cette application a demandé de nombreuses itérations. Si c'était à refaire, voici les **5 goulots d'étranglement majeurs** qui ont coûté du temps et comment les éviter :\n\n### ❌ Erreur n°1 : Repousser la base de données Cloud à la fin\n* **Ce qui s'est passé** : Au début, le profil et la synchronisation ont été codés avec un export/import manuel de fichier `.json`. L'utilisateur a vite trouvé ça rébarbatif (\"barbant de télécharger un fichier pour synchroniser\"). Il a fallu refactoriser le code pour brancher Supabase en cours de route.\n* **L'enseignement** : Dès qu'une application a vocation à être utilisée sur PC **et** sur mobile, il faut **définir la base Cloud (Supabase) dès le sprint 1**. Créer une table `profiles` prend 2 minutes au départ et évite des heures de refactorisation.\n\n---\n\n### ❌ Erreur n°2 : Confondre Base de Données (Supabase) et Hébergeur Web (Vercel)\n* **Ce qui s'est passé** : La question s'est posée de savoir comment \"mettre son site en HTTPS avec Supabase\".\n* **L'enseignement** :\n  * **Supabase** = C'est le placard (la base de données) où l'on range les informations.\n  * **Vercel / GitHub Pages** = C'est la vitrine du magasin (les fichiers HTML/React visibles par tout le monde avec un cadenas HTTPS).\n  * En clarifiant dès la première seconde la formule `Frontend (Vercel) + Database (Supabase)`, on élimine tout doute conceptuel.\n\n---\n\n### ❌ Erreur n°3 : La surcharge visuelle par empilement de boutons (\"Feature Creep\")\n* **Ce qui s'est passé** : Chaque nouvelle fonctionnalité ajoutait son propre bouton dans l'en-tête (Anki, Calendrier, Sauvegarde, Apple, Thème, Voix). L'en-tête est rapidement devenu illisible et surchargé (\"ce menu est hideux\").\n* **L'enseignement** : Règle d'or de l'UI : **Dès qu'on dépasse 3 actions secondaires dans un header, créer immédiatement un menu déroulant ou un tiroir d'outils.** Nous avons dû créer `HeaderMenuDropdown.tsx` pour regrouper proprement les outils et redonner un aspect professionnel.\n\n---\n\n### ❌ Erreur n°4 : Le piège de Git sous Windows (Non-interactivité des terminaux en tâche de fond)\n* **Ce qui s'est passé** : L'envoi automatique avec `git push` restait bloqué parce que Windows Git Credential Manager essayait d'ouvrir une popup graphique d'authentification que le sous-shell ne pouvait pas afficher.\n* **L'enseignement** :\n  * Pour Windows, toujours privilégier un script `.bat` visible par l'utilisateur ou la commande directe dans son terminal principal.\n  * Mieux encore : utiliser **Vercel CLI** (`deployer_direct_vercel.bat`) qui permet de déployer sans dépendre de Git si l'on veut aller vite sans configuration de clés SSH.\n\n---\n\n### ❌ Erreur n°5 : Les requêtes utilisateur au coup par coup sans roadmap unifiée\n* **Ce qui s'est passé** : \"Fais ci\", puis \"ajoute une voix\", puis \"fais un dark mode\", puis \"ajoute un hanzi du jour\", puis \"connecte à l'iPhone\", puis \"change l'URL\".\n* **L'enseignement** : C'est le principe même du *vibecoding* exploratoire, mais cela oblige l'IA à modifier 10 fois les mêmes fichiers (`App.tsx`, `Header.tsx`). Regrouper les demandes par grands blocs (Design, Données, Déploiement) divise le temps de dev par 3.\n\n---\n\n## 5. Le Guide du \"Vibecoder\" d'Élite : Comment sortir ce site en 2 heures\n\nPour recréer un projet de cette envergure en un temps record lors de vos prochains projets, suivez ce **protocole en 4 phases chronométrées** :\n\n```\n┌─────────────────────────────────────────────────────────────────────────────┐\n│                       LE PROTOCOLE 2 HEURES CHRONO                          │\n├─────────────────┬─────────────────┬─────────────────┬───────────────────────┤\n│  00h00 - 00h15  │  00h15 - 00h45  │  00h45 - 01h30  │     01h30 - 02h00     │\n│  Phase 1 :      │  Phase 2 :      │  Phase 3 :      │  Phase 4 :            │\n│  Le PRD &       │  Le Squelette   │  Les Cœurs      │  Le Cloud             │\n│  l'Architecture │  UI & Thèmes    │  Métier (Audio) │  & Déploiement        │\n└─────────────────┴─────────────────┴─────────────────┴───────────────────────┘\n```\n\n### Phase 1 (00h00 - 00h15) : Le Cadrage Clair\nNe tapez pas une seule ligne de code. Donnez à l'IA un prompt décrivant :\n1. La stack exacte : React + Vite + Tailwind + Supabase.\n2. Les 3 ou 4 vues principales de l'app.\n3. Le modèle de données (TypeScript interfaces).\n\n### Phase 2 (00h15 - 00h45) : Le Shell UI\n1. Mettre en place le layout global avec conteneur responsive large (`max-w-[1440px]`).\n2. Configurer dès le départ les deux modes visuels (Mode Clair / Mode Sombre).\n3. Prévoir le composant d'en-tête avec navigation par pilule et menu déroulant d'outils.\n\n### Phase 3 (00h45 - 01h30) : L'Implémentation Métier\n1. Intégrer les Web Speech APIs natives (reconnaissance et synthèse multi-voix).\n2. Brancher le lecteur immersif et les cartes de nuances.\n3. Tester immédiatement avec des données bouchonnées (mock data).\n\n### Phase 4 (01h30 - 02h00) : Supabase & Déploiement Vercel\n1. Initialiser Supabase avec 1 table simple (`user_profiles`).\n2. Connecter le projet à Vercel en 1 clic pour avoir son adresse HTTPS `*.vercel.app`.\n3. Tester sur son iPhone via Safari et l'ajouter à l'écran d'accueil en PWA.\n\n---\n\n## 6. La Bibliothèque de Prompts d'Architecture (À réutiliser)\n\nCopiez-collez ces prompts pour vos futurs projets afin d'obtenir un résultat parfait dès le premier coup :\n\n### 🎯 Prompt 1 : Pour lancer un projet complet (Zéro ambiguïté)\n```markdown\nAgis comme un Tech Lead et Product Designer d'élite.\nJe veux créer une application web : [Nom du projet / ex: Coach d'expression chinoise].\nVoici mes contraintes non négociables :\n1. Stack : React 18, Vite, TypeScript, Tailwind CSS, Lucide Icons.\n2. Zéro API payante : utilise les API natives du navigateur (Web Speech, LocalStorage, etc.).\n3. Architecture UI : Layout responsive jusqu'à 1440px, support natif d'un mode clair et d'un mode sombre élégant.\n4. Structure : \n   - Un en-tête épuré avec navigation centrale et un unique menu déroulant \"Outils\" pour éviter la surcharge.\n   - 4 vues distinctes [Lister les 4 vues].\n5. Données : Prévois dès le début une interface TypeScript claire pour l'état de l'utilisateur, prête pour être synchronisée dans le Cloud.\nCommence par générer l'architecture du projet et le premier squelette fonctionnel.\n```\n\n### 🎯 Prompt 2 : Pour intégrer Supabase sans prise de tête\n```markdown\nJe veux ajouter la synchronisation Cloud multi-appareils à mon application React avec Supabase.\nJe veux une expérience fluide et sans friction pour l'utilisateur :\n1. Pas de formulaire d'inscription lourd : utilise une clé secrète/identifiant unique (ex: \"warm1t\") que l'utilisateur peut entrer sur son téléphone pour synchroniser ses données.\n2. Écris le script SQL complet prêt à être collé dans le SQL Editor de Supabase (création de table, RLS, politiques publiques par clé).\n3. Crée le client Supabase et un modal avec deux onglets :\n   - Onglet 1 : Cloud Supabase (Sauvegarder en 1 clic / Restaurer en 1 clic / Auto-sync).\n   - Onglet 2 : Fichier JSON local en secours hors-ligne.\n```\n\n### 🎯 Prompt 3 : Pour déployer sur Vercel avec son propre nom\n```markdown\nJe veux déployer mon application React/Vite sur Internet avec une vraie URL HTTPS sécurisée, sans passer par GitHub si je ne le souhaite pas.\n1. Configure vite.config.ts pour que les chemins d'accès soient relatifs (base: './').\n2. Crée un script Windows (.bat) qui lance le build de production et utilise Vercel CLI (npx vercel --prod) pour publier directement en ligne en 1 clic.\n3. Explique-moi comment renommer mon domaine sur Vercel pour avoir une adresse personnalisée gratuite du style \"mon-app.vercel.app\".\n```\n\n---\n\n## 💡 Le mot de la fin\nCe projet **Fluent Mandarin** est un cas d'école parfait de ce que le **Vibecoding moderne** permet d'accomplir :\n* En quelques sessions, vous êtes passé d'une idée sur papier à une **application de niveau commercial**, avec synthèse vocale naturelle homme/femme, synchronisation Cloud Supabase, intégration écosystème Apple (Widget iOS) et hébergement mondial ultra-rapide sur Vercel.\n* Gardez ce document dans votre dossier de formation `D:\\AI learning` : les patterns techniques et les erreurs documentées ici vous feront gagner des dizaines d'heures sur tous vos projets futurs !\n", "wordCount": 2131, "readingTime": "12 min"}];
+    let currentDocId = null;
+
+    // Custom marked renderer that supports Marked v12, v13, v14, v15+ safely
+    const renderer = new marked.Renderer();
+    
+    // Robust Code Block Renderer
+    renderer.code = function(arg1, arg2) {
+      let text = '';
+      let lang = 'plaintext';
+      
+      // Handle both Marked v12+ token object and older (code, lang) arguments
+      if (arg1 && typeof arg1 === 'object') {
+        text = arg1.text || '';
+        lang = arg1.lang || 'plaintext';
+      } else {
+        text = String(arg1 || '');
+        lang = arg2 || 'plaintext';
+      }
+
+      lang = (lang.trim().split(/\s+/)[0] || 'plaintext').toLowerCase();
+      
+      let highlighted = '';
+      try {
+        if (typeof hljs !== 'undefined' && hljs.getLanguage(lang)) {
+          highlighted = hljs.highlight(text, { language: lang }).value;
+        } else if (typeof hljs !== 'undefined') {
+          highlighted = hljs.highlightAuto(text).value;
+        } else {
+          highlighted = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+      } catch (e) {
+        highlighted = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      const escapedCode = encodeURIComponent(text);
+
+      return `
+        <div class="code-block-wrapper my-5 rounded-xl overflow-hidden border border-slate-700/60 bg-[#0d1117] shadow-xl">
+          <div class="code-header flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700/50 text-xs font-mono text-slate-300">
+            <span class="font-bold text-indigo-400 tracking-wider uppercase">${lang}</span>
+            <button onclick="copyCode(this, '${escapedCode}')" class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-700/70 hover:bg-brand-600 text-slate-200 hover:text-white transition cursor-pointer text-xs">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>Copier</span>
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm leading-relaxed"><code class="hljs language-${lang}">${highlighted}</code></pre>
+        </div>
+      `;
+    };
+
+    marked.use({ renderer, gfm: true, breaks: false });
+
+    // Render Navigation Sidebar
+    function renderNavigation(searchFilter = '') {
+      const nav = document.getElementById('navContainer');
+      if (!nav) return;
+      nav.innerHTML = '';
+
+      const categories = [...new Set(DOCUMENTS.map(d => d.category))];
+
+      categories.forEach(cat => {
+        const filteredDocs = DOCUMENTS.filter(d => 
+          d.category === cat && 
+          (d.title.toLowerCase().includes(searchFilter.toLowerCase()) || 
+           d.content.toLowerCase().includes(searchFilter.toLowerCase()))
+        );
+
+        if (filteredDocs.length === 0) return;
+
+        const section = document.createElement('div');
+        section.className = 'space-y-1';
+
+        const catTitle = document.createElement('h3');
+        catTitle.className = 'px-3 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2';
+        catTitle.textContent = cat;
+        section.appendChild(catTitle);
+
+        filteredDocs.forEach(doc => {
+          const btn = document.createElement('button');
+          const isActive = doc.id === currentDocId;
+          btn.className = `w-full text-left flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition cursor-pointer ${
+            isActive 
+              ? 'bg-brand-600/15 text-brand-400 font-semibold border border-brand-500/30' 
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-darkbg-800 hover:text-slate-900 dark:hover:text-slate-100'
+          }`;
+          
+          btn.innerHTML = `
+            <div class="flex items-center gap-2.5 truncate">
+              <i data-lucide="${doc.icon || 'file-text'}" class="w-4 h-4 flex-shrink-0 text-slate-400"></i>
+              <span class="truncate">${doc.title}</span>
+            </div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200/50 dark:bg-slate-800 text-slate-500 dark:text-slate-400">${doc.badge}</span>
+          `;
+
+          btn.onclick = () => {
+            selectDoc(doc.id);
+            closeMobileDrawer();
+          };
+
+          section.appendChild(btn);
+        });
+
+        nav.appendChild(section);
+      });
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Select and display a document
+    function selectDoc(docId) {
+      const doc = DOCUMENTS.find(d => d.id === docId) || DOCUMENTS[0];
+      if (!doc) return;
+
+      currentDocId = doc.id;
+      window.location.hash = doc.id;
+
+      document.getElementById('docCategory').textContent = doc.category;
+      document.getElementById('docBadge').textContent = doc.badge;
+      document.getElementById('docReadingTime').querySelector('span').textContent = doc.readingTime;
+      document.getElementById('docFilePath').textContent = doc.path;
+      document.getElementById('docTitle').textContent = doc.title;
+
+      // Render markdown with try-catch fallback
+      try {
+        const htmlContent = marked.parse(doc.content);
+        document.getElementById('docBody').innerHTML = htmlContent;
+      } catch (err) {
+        console.error('Erreur parsing Markdown:', err);
+        document.getElementById('docBody').innerHTML = `<div class="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-300">Erreur d'affichage du contenu.</div>`;
+      }
+
+      // Handle in-content markdown links to navigate internally
+      attachInternalLinkInterceptors();
+
+      // Update Prev / Next buttons
+      const currentIndex = DOCUMENTS.findIndex(d => d.id === doc.id);
+      const prevDoc = DOCUMENTS[currentIndex - 1];
+      const nextDoc = DOCUMENTS[currentIndex + 1];
+
+      const prevBtn = document.getElementById('prevDocBtn');
+      const nextBtn = document.getElementById('nextDocBtn');
+
+      if (prevDoc) {
+        prevBtn.style.visibility = 'visible';
+        document.getElementById('prevDocLabel').textContent = prevDoc.title;
+        prevBtn.onclick = () => selectDoc(prevDoc.id);
+      } else {
+        prevBtn.style.visibility = 'hidden';
+      }
+
+      if (nextDoc) {
+        nextBtn.style.visibility = 'visible';
+        document.getElementById('nextDocLabel').textContent = nextDoc.title;
+        nextBtn.onclick = () => selectDoc(nextDoc.id);
+      } else {
+        nextBtn.style.visibility = 'hidden';
+      }
+
+      const searchVal = document.getElementById('searchInput') ? document.getElementById('searchInput').value : '';
+      renderNavigation(searchVal);
+      if (window.lucide) lucide.createIcons();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Intercept clicks on links that reference other files in the project
+    function attachInternalLinkInterceptors() {
+      const container = document.getElementById('docBody');
+      const links = container.querySelectorAll('a');
+      links.forEach(link => {
+        const rawHref = link.getAttribute('href') || '';
+        let decodedHref = '';
+        try {
+          decodedHref = decodeURIComponent(rawHref).replace(/\\/g, '/');
+        } catch(e) {
+          decodedHref = rawHref.replace(/\\/g, '/');
+        }
+
+        // Check if link matches any document path or id
+        const targetDoc = DOCUMENTS.find(d => 
+          decodedHref.endsWith(d.path) || 
+          decodedHref.includes(d.path) || 
+          (d.id && rawHref === '#' + d.id)
+        );
+
+        if (targetDoc) {
+          link.style.cursor = 'pointer';
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            selectDoc(targetDoc.id);
+          });
+        }
+      });
+    }
+
+    // Copy helper
+    function copyCode(btn, encodedCode) {
+      const code = decodeURIComponent(encodedCode);
+      navigator.clipboard.writeText(code).then(() => {
+        showToast("Code copié dans le presse-papier !");
+      }).catch(() => {
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast("Code copié dans le presse-papier !");
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    // Theme toggle
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      if (window.lucide) lucide.createIcons();
+    });
+
+    // Reading progress bar
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+      document.getElementById('readingProgress').style.width = scrolled + '%';
+    });
+
+    // Search events
+    const searchInput = document.getElementById('searchInput');
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+
+    function handleSearch(e) {
+      renderNavigation(e.target.value);
+    }
+    if (searchInput) searchInput.addEventListener('input', handleSearch);
+    if (mobileSearchInput) mobileSearchInput.addEventListener('input', handleSearch);
+
+    // Keyboard shortcut (Ctrl+K)
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        if (searchInput) searchInput.focus();
+      }
+    });
+
+    // Mobile Drawer Controls
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('drawerOverlay');
+
+    function openMobileDrawer() {
+      sidebar.classList.remove('-translate-x-full');
+      overlay.classList.remove('hidden');
+    }
+    function closeMobileDrawer() {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    }
+    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openMobileDrawer);
+    if (overlay) overlay.addEventListener('click', closeMobileDrawer);
+
+    // Initial load
+    window.addEventListener('DOMContentLoaded', () => {
+      const initialId = window.location.hash.replace('#', '') || 'hub-accueil';
+      selectDoc(initialId);
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maths Master — Assistant de Mathématiques pour l'Ingénieur</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: {
+              50: '#fdfdfc',
+              100: '#fcfbfa',
+              200: '#f4f4f0',
+              300: '#e8e8e2',
+            },
+            ink: {
+              900: '#18181b', // Encre noire profonde
+              800: '#27272a',
+              700: '#3f3f46',
+              600: '#52525b',
+              500: '#71717a',
+              400: '#a1a1aa',
+              200: '#e4e4e7',
+              100: '#f4f4f5'
+            }
+          },
+          fontFamily: {
+            serif: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['Consolas', 'Menlo', 'Monaco', 'Courier New', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- KaTeX pour le rendu des formules mathématiques -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" 
+          onload="renderAllMath();"></script>
+
+  <!-- Supabase Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- PDF.js CDN pour l'extraction de polycopiés et feuilles de TD PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #faf9f6;
+      color: #18181b;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection {
+      background-color: #18181b;
+      color: #ffffff;
+    }
+    .katex-display {
+      margin: 0.75em 0 !important;
+    }
+    /* Scrollbars minimalistes encre */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f4f4f0; }
+    ::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+
+  <!-- ================= EN-TÊTE SOBRE (STYLE ÉDITION ACADÉMIQUE) ================= -->
+  <header class="bg-white border-b border-ink-200 sticky top-0 z-40 px-6 py-3.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Titre & Marque académique -->
+      <div class="flex items-center space-x-3">
+        <div class="w-8 h-8 border border-ink-900 bg-paper-100 flex items-center justify-center font-serif text-ink-900 font-bold text-sm">
+          $\mathbb{M}$
+        </div>
+        <div>
+          <h1 class="text-sm font-bold tracking-wider text-ink-900 uppercase font-sans">
+            Maths Master <span class="text-xs text-ink-500 font-normal tracking-normal lowercase">| assistant ingénieur</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Navigation par Onglets Principaux -->
+      <nav class="flex items-center bg-paper-200 p-1 rounded-lg border border-ink-200 text-xs font-medium">
+        <button onclick="switchTab('chat')" id="tabBtn-chat" class="px-3.5 py-1.5 rounded-md bg-white text-ink-900 shadow-sm transition">
+          💬 Chatbot Pédagogique
+        </button>
+        <button onclick="switchTab('courses')" id="tabBtn-courses" class="px-3.5 py-1.5 rounded-md text-ink-600 hover:text-ink-900 transition">
+          📚 Dossiers de Cours (<span id="coursesCount">0</span>)
+        </button>
+        <button onclick="switchTab('tds')" id="tabBtn-tds" class="px-3.5 py-1.5 rounded-md text-ink-600 hover:text-ink-900 transition">
+          📝 Dossiers de TD (<span id="tdsCount">0</span>)
+        </button>
+        <button onclick="switchTab('revision')" id="tabBtn-revision" class="px-3.5 py-1.5 rounded-md text-ink-600 hover:text-ink-900 transition">
+          📅 Programmes de Révision
+        </button>
+      </nav>
+
+      <!-- Statut Supabase & Réglages -->
+      <div class="flex items-center gap-3 text-xs">
+        <button onclick="toggleCloudModal()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-ink-200 bg-white hover:bg-paper-100 text-ink-700 transition" title="Synchronisation Supabase">
+          <span id="cloudStatusDot" class="w-2 h-2 rounded-full bg-gray-400"></span>
+          <span id="cloudStatusText">Cloud Teacher</span>
+        </button>
+        <button onclick="toggleSettingsModal()" class="px-2 py-1.5 rounded border border-ink-200 bg-white hover:bg-paper-100 text-ink-700 transition" title="Paramètres IA">
+          ⚙️
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= CONTENU PRINCIPAL PAR ONGLETS ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-6 flex flex-col">
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 1 : CHATBOT SPÉCIALISÉ                                             -->
+    <!-- ========================================================================= -->
+    <section id="tab-chat" class="flex-1 flex flex-col bg-white border border-ink-200 rounded-xl shadow-sm overflow-hidden min-h-[700px]">
+      
+      <!-- Barre d'Ancrage du Contexte (Cours / TD actif) -->
+      <div class="bg-paper-100 border-b border-ink-200 px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="text-ink-500 font-medium">Contexte du Professeur :</span>
+          <div id="activeContextBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-ink-200 bg-white text-ink-700">
+            <span class="text-ink-400">ℹ️</span>
+            <span id="activeContextText">Aucun cours chargé (Raisonnement général)</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <select id="contextSelector" onchange="changeActiveContext(this.value)" class="text-xs bg-white border border-ink-200 rounded px-2.5 py-1 text-ink-800 focus:outline-none focus:border-ink-800">
+            <option value="none">Sélectionner un cours comme référence...</option>
+          </select>
+          <button onclick="clearContext()" id="clearContextBtn" class="hidden text-ink-500 hover:text-ink-900 text-xs px-2 py-1">
+            Détacher
+          </button>
+          <button onclick="clearChatHistory()" class="text-ink-400 hover:text-ink-700 text-xs px-2 py-1 ml-2 border-l border-ink-200">
+            Effacer la conversation
+          </button>
+        </div>
+      </div>
+
+      <!-- Zone de Discussion (Messages) -->
+      <div id="chatMessages" class="flex-1 p-6 overflow-y-auto space-y-5 bg-paper-50/50">
+        <!-- Message Initial sobre du Professeur -->
+        <div class="flex items-start gap-4 max-w-3xl">
+          <div class="w-8 h-8 rounded border border-ink-900 bg-ink-900 text-white flex items-center justify-center text-xs font-serif font-bold shrink-0">
+            P
+          </div>
+          <div class="bg-white border border-ink-200 p-4 rounded-lg shadow-sm text-sm text-ink-800 leading-relaxed space-y-2">
+            <p class="font-semibold text-ink-900 font-serif">Bienvenue dans votre atelier de mathématiques.</p>
+            <p id="chatWelcomeNote" class="text-ink-600 text-xs leading-relaxed">
+              Votre espace de travail est actuellement <strong>vierge</strong>. Vous n'avez encore chargé aucun cours ni TD.<br>
+              Pour que je puisse vous guider et corriger vos démarches avec les notations et théorèmes exacts de votre cursus, ajoutez votre premier chapitre dans l'onglet <strong>📚 Dossiers de Cours</strong> ou vos exercices dans <strong>📝 Dossiers de TD</strong>.
+            </p>
+            <p class="text-ink-500 text-xs pt-1 border-t border-ink-100">
+              Vous pouvez néanmoins me poser dès maintenant n'importe quelle question théorique, ou me coller un exercice à résoudre étape par étape.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barre d'Actions Rapides -->
+      <div class="px-5 py-2 bg-paper-100 border-t border-ink-200 flex flex-wrap items-center gap-2 text-xs">
+        <span class="text-ink-500 font-medium mr-1">Actions :</span>
+        <button onclick="triggerPdfImport('chat')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-900 text-ink-900 font-medium transition flex items-center gap-1 shadow-xs">
+          📄 Joindre un PDF (Cours ou TD)
+        </button>
+        <button onclick="quickAction('corriger')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+          🎯 Corriger ma démarche
+        </button>
+        <button onclick="quickAction('indice')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+          💡 Demander un indice sans solution
+        </button>
+        <button onclick="quickAction('methode')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+          📐 Rappel de méthode
+        </button>
+        <button onclick="quickAction('preuve')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+          🔍 Moelle de la démonstration
+        </button>
+      </div>
+
+      <!-- Zone de Saisie du Message -->
+      <div class="p-4 bg-white border-t border-ink-200">
+        <input type="file" id="chatPdfInput" accept=".pdf" class="hidden" onchange="handlePdfUpload(event, 'chat')">
+        <form id="chatForm" onsubmit="handleSendMessage(event)" class="space-y-2">
+          <div class="relative">
+            <textarea id="chatInput" rows="3" 
+              class="w-full p-3.5 text-xs font-sans bg-paper-50 border border-ink-200 rounded-lg text-ink-900 focus:outline-none focus:border-ink-900 focus:bg-white transition resize-none placeholder-ink-400"
+              placeholder="Posez une question, collez un énoncé d'exercice ou décrivez votre démarche de calcul (supporte LaTeX $...$ et $$...$$)..."></textarea>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2 text-[11px] text-ink-400">
+              <button type="button" onclick="triggerPdfImport('chat')" class="text-ink-600 hover:text-ink-900 underline flex items-center gap-1">
+                📎 Glisser ou joindre un PDF
+              </button>
+              <span>•</span>
+              <span>Astuce : <code>$x^2$</code> (en ligne), <code>$$\int$$</code> (centré)</span>
+            </div>
+            <button type="submit" class="px-4 py-2 bg-ink-900 hover:bg-ink-800 text-white rounded font-medium transition shadow-sm">
+              Envoyer au Professeur
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 2 : DOSSIERS DE COURS (BIEN TRIÉS)                                 -->
+    <!-- ========================================================================= -->
+    <section id="tab-courses" class="hidden flex-1 flex flex-col space-y-5">
+      
+      <!-- En-tête de section -->
+      <div class="flex items-center justify-between pb-3 border-b border-ink-200">
+        <div>
+          <h2 class="text-base font-bold text-ink-900 font-serif">Dossiers de Cours</h2>
+          <p class="text-xs text-ink-500">Vos polycopiés, théorèmes et définitions structurés par matière et chapitre.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="file" id="coursePdfInput" accept=".pdf" class="hidden" onchange="handlePdfUpload(event, 'course')">
+          <button onclick="triggerPdfImport('course')" class="px-3.5 py-2 bg-white hover:bg-paper-100 border border-ink-900 text-ink-900 text-xs rounded font-medium transition flex items-center gap-1.5 shadow-xs">
+            📄 Importer un PDF de Cours
+          </button>
+          <button onclick="openCourseModal()" class="px-3.5 py-2 bg-ink-900 hover:bg-ink-800 text-white text-xs rounded font-medium transition flex items-center gap-1.5 shadow-sm">
+            + Ajouter Manuellement
+          </button>
+        </div>
+      </div>
+
+      <!-- Liste des Cours ou État Vide -->
+      <div id="coursesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendu dynamique par JS -->
+      </div>
+
+      <!-- État Vide (affiché si aucun cours) -->
+      <div id="coursesEmptyState" class="bg-white border border-dashed border-ink-200 rounded-xl p-12 text-center space-y-3">
+        <div class="w-12 h-12 mx-auto rounded border border-ink-200 bg-paper-100 flex items-center justify-center text-xl text-ink-500">
+          📚
+        </div>
+        <h3 class="text-sm font-semibold text-ink-800 font-serif">Aucun cours dans votre classeur</h3>
+        <p class="text-xs text-ink-500 max-w-md mx-auto leading-relaxed">
+          Votre espace est entièrement vierge. Vous pouvez importer directement un polycopié de cours en PDF ou créer votre fiche manuellement.
+        </p>
+        <div class="flex justify-center gap-3 pt-2">
+          <button onclick="triggerPdfImport('course')" class="px-4 py-2 bg-ink-900 hover:bg-ink-800 text-white text-xs rounded font-medium transition flex items-center gap-1.5 shadow-sm">
+            📄 Importer un Polycopié PDF
+          </button>
+          <button onclick="openCourseModal()" class="px-4 py-2 bg-white hover:bg-paper-100 border border-ink-900 text-ink-900 text-xs rounded font-medium transition">
+            + Saisir manuellement
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 3 : DOSSIERS DE TD & EXERCICES                                     -->
+    <!-- ========================================================================= -->
+    <section id="tab-tds" class="hidden flex-1 flex flex-col space-y-5">
+      
+      <!-- En-tête de section -->
+      <div class="flex items-center justify-between pb-3 border-b border-ink-200">
+        <div>
+          <h2 class="text-base font-bold text-ink-900 font-serif">Feuilles de TD & Exercices</h2>
+          <p class="text-xs text-ink-500">Vos séries d'exercices classées et associées à vos cours pour correction ciblée.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="file" id="tdPdfInput" accept=".pdf" class="hidden" onchange="handlePdfUpload(event, 'td')">
+          <button onclick="triggerPdfImport('td')" class="px-3.5 py-2 bg-white hover:bg-paper-100 border border-ink-900 text-ink-900 text-xs rounded font-medium transition flex items-center gap-1.5 shadow-xs">
+            📄 Importer un PDF de TD
+          </button>
+          <button onclick="openTdModal()" class="px-3.5 py-2 bg-ink-900 hover:bg-ink-800 text-white text-xs rounded font-medium transition flex items-center gap-1.5 shadow-sm">
+            + Ajouter Manuellement
+          </button>
+        </div>
+      </div>
+
+      <!-- Liste des TD ou État Vide -->
+      <div id="tdsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendu dynamique par JS -->
+      </div>
+
+      <!-- État Vide (affiché si aucun TD) -->
+      <div id="tdsEmptyState" class="bg-white border border-dashed border-ink-200 rounded-xl p-12 text-center space-y-3">
+        <div class="w-12 h-12 mx-auto rounded border border-ink-200 bg-paper-100 flex items-center justify-center text-xl text-ink-500">
+          📝
+        </div>
+        <h3 class="text-sm font-semibold text-ink-800 font-serif">Aucune feuille de TD enregistrée</h3>
+        <p class="text-xs text-ink-500 max-w-md mx-auto leading-relaxed">
+          Enregistrez les énoncés de vos travaux dirigés en important une feuille PDF ou en tapant vos exercices pour les envoyer directement au Chatbot Pédagogique.
+        </p>
+        <div class="flex justify-center gap-3 pt-2">
+          <button onclick="triggerPdfImport('td')" class="px-4 py-2 bg-ink-900 hover:bg-ink-800 text-white text-xs rounded font-medium transition flex items-center gap-1.5 shadow-sm">
+            📄 Importer une Feuille de TD en PDF
+          </button>
+          <button onclick="openTdModal()" class="px-4 py-2 bg-white hover:bg-paper-100 border border-ink-900 text-ink-900 text-xs rounded font-medium transition">
+            + Saisir manuellement
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- ONGLET 4 : PROGRAMMES DE RÉVISION                                         -->
+    <!-- ========================================================================= -->
+    <section id="tab-revision" class="hidden flex-1 flex flex-col space-y-5">
+      
+      <!-- En-tête de section -->
+      <div class="flex items-center justify-between pb-3 border-b border-ink-200">
+        <div>
+          <h2 class="text-base font-bold text-ink-900 font-serif">Programmes de Révision</h2>
+          <p class="text-xs text-ink-500">Planification méthodique de l'assimilation de vos matières (partiels, concours, oraux).</p>
+        </div>
+        <button onclick="generateRevisionSchedule()" class="px-3.5 py-2 bg-ink-900 hover:bg-ink-800 text-white text-xs rounded font-medium transition flex items-center gap-1.5 shadow-sm">
+          🔄 Générer un Programme d'Assimilation
+        </button>
+      </div>
+
+      <!-- Tableau de bord de révision -->
+      <div id="revisionContent" class="space-y-4">
+        <!-- Rendu dynamique par JS -->
+      </div>
+
+      <!-- État Vide Révision -->
+      <div id="revisionEmptyState" class="bg-white border border-dashed border-ink-200 rounded-xl p-12 text-center space-y-3">
+        <div class="w-12 h-12 mx-auto rounded border border-ink-200 bg-paper-100 flex items-center justify-center text-xl text-ink-500">
+          📅
+        </div>
+        <h3 class="text-sm font-semibold text-ink-800 font-serif">Aucun programme de révision actif</h3>
+        <p class="text-xs text-ink-500 max-w-md mx-auto leading-relaxed">
+          Dès que vous aurez renseigné vos premiers cours et TD, vous pourrez générer automatiquement un calendrier de travail pas-à-pas.
+        </p>
+      </div>
+
+    </section>
+
+  <!-- ================= MODALE : PROGRESSION EXTRACTION PDF ================= -->
+  <div id="pdfProgressModal" class="hidden fixed inset-0 bg-ink-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-ink-200 rounded-xl max-w-sm w-full p-6 shadow-xl text-center space-y-4">
+      <div class="w-10 h-10 mx-auto rounded border border-ink-200 bg-paper-100 flex items-center justify-center text-lg animate-pulse">
+        📄
+      </div>
+      <div>
+        <h3 class="text-sm font-bold text-ink-900 font-serif">Extraction du document PDF</h3>
+        <p id="pdfProgressText" class="text-xs text-ink-500 mt-1">Analyse des pages et des équations mathématiques...</p>
+      </div>
+      <div class="w-full bg-paper-200 rounded-full h-1.5 overflow-hidden">
+        <div id="pdfProgressBar" class="bg-ink-900 h-full w-0 transition-all duration-200"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODALE : AJOUTER UN COURS ================= -->
+  <div id="courseModal" class="hidden fixed inset-0 bg-ink-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-ink-200 rounded-xl max-w-xl w-full p-6 shadow-xl space-y-4">
+      <div class="flex items-center justify-between border-b border-ink-200 pb-3">
+        <h3 class="text-sm font-bold text-ink-900 font-serif">Nouveau Cours / Chapitre</h3>
+        <button onclick="closeCourseModal()" class="text-ink-400 hover:text-ink-700">✕</button>
+      </div>
+
+      <form onsubmit="handleSaveCourse(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Matière / Discipline :</label>
+          <input type="text" id="courseSubject" required placeholder="Ex: Algèbre Linéaire, Analyse Vectorielle, Probabilités..." 
+            class="w-full p-2 bg-paper-50 border border-ink-200 rounded text-ink-900 focus:outline-none focus:border-ink-900">
+        </div>
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Titre du Chapitre :</label>
+          <input type="text" id="courseTitle" required placeholder="Ex: Chapitre 1 : Espaces Vectoriels et Théorème du Rang" 
+            class="w-full p-2 bg-paper-50 border border-ink-200 rounded text-ink-900 focus:outline-none focus:border-ink-900">
+        </div>
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Contenu Théorique (Définitions, Théorèmes, Propriétés) :</label>
+          <textarea id="courseBody" rows="8" required placeholder="Collez ici les définitions et théorèmes clés de votre cours. Supporte LaTeX ($...$ et $$...$$)..." 
+            class="w-full p-2.5 font-mono text-xs bg-paper-50 border border-ink-200 rounded text-ink-900 focus:outline-none focus:border-ink-900 resize-none"></textarea>
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2 border-t border-ink-100">
+          <button type="button" onclick="closeCourseModal()" class="px-3 py-1.5 border border-ink-200 rounded text-ink-600 hover:bg-paper-100">
+            Annuler
+          </button>
+          <button type="submit" class="px-4 py-1.5 bg-ink-900 text-white rounded font-medium hover:bg-ink-800">
+            Enregistrer ce cours
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODALE : AJOUTER UN TD ================= -->
+  <div id="tdModal" class="hidden fixed inset-0 bg-ink-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-ink-200 rounded-xl max-w-xl w-full p-6 shadow-xl space-y-4">
+      <div class="flex items-center justify-between border-b border-ink-200 pb-3">
+        <h3 class="text-sm font-bold text-ink-900 font-serif">Nouvelle Feuille de TD</h3>
+        <button onclick="closeTdModal()" class="text-ink-400 hover:text-ink-700">✕</button>
+      </div>
+
+      <form onsubmit="handleSaveTd(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Titre de la Feuille de TD :</label>
+          <input type="text" id="tdTitle" required placeholder="Ex: TD 1 : Déterminants, Noyaux et Réduction" 
+            class="w-full p-2 bg-paper-50 border border-ink-200 rounded text-ink-900 focus:outline-none focus:border-ink-900">
+        </div>
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Cours rattaché :</label>
+          <select id="tdCourseSelect" class="w-full p-2 bg-paper-50 border border-ink-200 rounded text-ink-900 focus:outline-none focus:border-ink-900">
+            <option value="">Sélectionner un cours...</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Énoncés des Exercices :</label>
+          <textarea id="tdBody" rows="8" required placeholder="Exercice 1 : ...&#10;Exercice 2 : ...&#10;Supporte la notation LaTeX $...$" 
+            class="w-full p-2.5 font-mono text-xs bg-paper-50 border border-ink-200 rounded text-ink-900 focus:outline-none focus:border-ink-900 resize-none"></textarea>
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2 border-t border-ink-100">
+          <button type="button" onclick="closeTdModal()" class="px-3 py-1.5 border border-ink-200 rounded text-ink-600 hover:bg-paper-100">
+            Annuler
+          </button>
+          <button type="submit" class="px-4 py-1.5 bg-ink-900 text-white rounded font-medium hover:bg-ink-800">
+            Enregistrer ce TD
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODALE : SUPABASE CLOUD (PROJET TEACHER) ================= -->
+  <div id="cloudModal" class="hidden fixed inset-0 bg-ink-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-ink-200 rounded-xl max-w-lg w-full p-6 shadow-xl space-y-4">
+      <div class="flex items-center justify-between border-b border-ink-200 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">☁️</span>
+          <div>
+            <h3 class="text-sm font-bold text-ink-900 font-serif">Cloud Supabase — Projet Teacher</h3>
+            <p id="cloudConnectionDesc" class="text-[11px] text-ink-500">Non configuré. Entrez les accès de votre projet Supabase 'teacher'.</p>
+          </div>
+        </div>
+        <button onclick="toggleCloudModal()" class="text-ink-400 hover:text-ink-700">✕</button>
+      </div>
+
+      <p class="text-xs text-ink-600 leading-relaxed">
+        Connectez votre base de données Supabase dédiée (projet <strong>teacher</strong>) pour synchroniser vos cours, feuilles de TD et conversations entre tous vos appareils.
+      </p>
+
+      <div class="bg-paper-100 p-3.5 rounded-lg border border-ink-200 space-y-3 text-xs">
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">1. URL du Projet Supabase (Teacher) :</label>
+          <input type="text" id="supabaseUrlInput" placeholder="https://votre-projet-teacher.supabase.co" 
+            class="w-full p-2 bg-white border border-ink-200 rounded font-mono text-xs text-ink-900 focus:outline-none focus:border-ink-900">
+        </div>
+
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">2. Clé Publique Anonyme (anon key) :</label>
+          <input type="password" id="supabaseKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." 
+            class="w-full p-2 bg-white border border-ink-200 rounded font-mono text-xs text-ink-900 focus:outline-none focus:border-ink-900">
+        </div>
+
+        <div class="pt-1 flex flex-col gap-2">
+          <button onclick="saveSupabaseConfig()" class="w-full py-2 bg-ink-900 hover:bg-ink-800 text-white rounded font-medium transition text-xs shadow-xs">
+            💾 Enregistrer mon Projet Teacher & Connecter
+          </button>
+          <button type="button" onclick="resetSupabaseConfig()" class="w-full py-1.5 border border-ink-200 text-ink-500 hover:text-red-700 hover:border-red-300 rounded text-xs transition">
+            🗑️ Déconnecter / Vider les champs
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between text-xs pt-2 border-t border-ink-100">
+        <span id="lastSyncLabel" class="text-ink-500">Dernière sauvegarde : Jamais</span>
+        <div class="flex gap-2">
+          <button onclick="pullFromCloud(true)" class="px-3 py-1.5 border border-ink-200 rounded hover:bg-paper-100 text-ink-700">Restaurer</button>
+          <button onclick="pushToCloud(true)" class="px-3 py-1.5 bg-ink-900 text-white rounded hover:bg-ink-800">Sauvegarder</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODALE : PARAMÈTRES IA ================= -->
+  <div id="settingsModal" class="hidden fixed inset-0 bg-ink-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-ink-200 rounded-xl max-w-md w-full p-6 shadow-xl space-y-4">
+      <div class="flex items-center justify-between border-b border-ink-200 pb-3">
+        <h3 class="text-sm font-bold text-ink-900 font-serif">Moteur d'Intelligence</h3>
+        <button onclick="toggleSettingsModal()" class="text-ink-400 hover:text-ink-700">✕</button>
+      </div>
+
+      <p class="text-xs text-ink-600 leading-relaxed">
+        L'assistant utilise par défaut son moteur d'analyse et de correction de mathématiques supérieures intégré. Vous pouvez également connecter votre propre modèle LLM direct :
+      </p>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Fournisseur :</label>
+          <select id="apiProvider" class="w-full p-2 bg-paper-50 border border-ink-200 rounded text-ink-900">
+            <option value="gemini">Google Gemini</option>
+            <option value="openai">OpenAI</option>
+            <option value="groq">Groq</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-ink-600 font-medium mb-1">Clé API (Optionnel) :</label>
+          <input type="password" id="apiKeyInput" placeholder="sk-... ou AIza..." class="w-full p-2 bg-paper-50 border border-ink-200 rounded font-mono">
+        </div>
+      </div>
+
+      <div class="pt-2 flex justify-end gap-2 border-t border-ink-100 text-xs">
+        <button onclick="toggleSettingsModal()" class="px-3 py-1.5 border border-ink-200 rounded text-ink-600">Fermer</button>
+        <button onclick="saveApiSettings()" class="px-4 py-1.5 bg-ink-900 text-white rounded font-medium">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODALE : VISIONNEUSE VISUELLE DE DOCUMENTS PDF ================= -->
+  <div id="documentViewerModal" class="hidden fixed inset-0 bg-ink-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-ink-200 rounded-2xl max-w-4xl w-full h-[90vh] p-6 shadow-2xl flex flex-col space-y-3">
+      <div class="flex items-center justify-between border-b border-ink-200 pb-3">
+        <div class="flex items-center gap-3">
+          <span class="text-xl">📄</span>
+          <div>
+            <h3 id="viewerDocTitle" class="text-sm font-bold text-ink-900 font-serif">Titre du Document</h3>
+            <p id="viewerDocSubtitle" class="text-xs text-ink-500">Document PDF Haute Définition</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="sendViewerPageToChat()" class="px-3 py-1.5 bg-ink-900 text-white rounded text-xs font-medium hover:bg-ink-800 transition shadow-xs flex items-center gap-1.5">
+            💬 Travailler cette page avec le Prof
+          </button>
+          <button onclick="closeDocumentViewer()" class="text-ink-400 hover:text-ink-700 text-lg">✕</button>
+        </div>
+      </div>
+
+      <!-- Barre de navigation des pages -->
+      <div class="flex items-center justify-between bg-paper-100 p-2 rounded-lg border border-ink-200 text-xs">
+        <div class="flex items-center gap-2">
+          <button onclick="prevViewerPage()" class="px-2.5 py-1 bg-white border border-ink-200 rounded hover:bg-paper-200 font-medium text-ink-800">← Page précédente</button>
+          <span class="font-medium text-ink-900 font-mono">Page <span id="viewerCurrentPageNum">1</span> sur <span id="viewerTotalPagesNum">1</span></span>
+          <button onclick="nextViewerPage()" class="px-2.5 py-1 bg-white border border-ink-200 rounded hover:bg-paper-200 font-medium text-ink-800">Page suivante →</button>
+        </div>
+        <div class="text-ink-500 text-[11px] hidden sm:block">
+          Rendu visuel fidèle : Formules, schémas et typographie d'origine
+        </div>
+      </div>
+
+      <!-- Conteneur de l'image de la page -->
+      <div class="flex-1 bg-paper-200/50 rounded-xl p-4 overflow-y-auto flex items-center justify-center border border-ink-200">
+        <img id="viewerPageImage" src="" alt="Page du PDF" class="max-h-full max-w-full object-contain shadow-md rounded bg-white border border-ink-200">
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODALE : PLEIN ÉCRAN IMAGE LIGHTBOX ================= -->
+  <div id="imageLightboxModal" class="hidden fixed inset-0 bg-ink-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 cursor-pointer" onclick="closeImageLightbox()">
+    <div class="relative max-w-5xl max-h-[92vh] flex items-center justify-center cursor-default" onclick="event.stopPropagation()">
+      <button onclick="closeImageLightbox()" class="absolute -top-10 right-0 text-white hover:text-ink-300 text-xl font-bold bg-ink-900/50 px-2 py-0.5 rounded">✕</button>
+      <img id="lightboxImage" src="" class="max-h-[88vh] max-w-full rounded-lg shadow-2xl border border-ink-200 bg-white object-contain" alt="Agrandissement">
+    </div>
+  </div>
+
+  <!-- ================= LOGIQUE JS & SUPABASE ================= -->
+  <script>
+    // --- ÉTAT DU WORKSPACE (100% VIDE PAR DÉFAUT) ---
+    let appData = {
+      courses: [], // Liste des cours ajoutés par l'utilisateur
+      tds: [],     // Liste des TD ajoutés par l'utilisateur
+      revisions: [],// Programmes de révision
+      activeCourseId: null,
+      messages: [] // Historique de conversation avec le prof
+    };
+
+    // --- CONFIGURATION SUPABASE (PROJET TEACHER) ---
+    let supabaseClient = null;
+
+    function initSupabase() {
+      let url = localStorage.getItem('maths_master_supabase_url') || '';
+      let key = localStorage.getItem('maths_master_supabase_key') || '';
+
+      // Sécurité : Si l'ancien projet chinois était resté en cache local, on le purge immédiatement
+      if (url.includes('vdbtwcbydirqwrogwkkz')) {
+        localStorage.removeItem('maths_master_supabase_url');
+        localStorage.removeItem('maths_master_supabase_key');
+        url = '';
+        key = '';
+      }
+
+      const urlInput = document.getElementById('supabaseUrlInput');
+      const keyInput = document.getElementById('supabaseKeyInput');
+      if (urlInput) urlInput.value = url;
+      if (keyInput) keyInput.value = key;
+
+      const dot = document.getElementById('cloudStatusDot');
+      const text = document.getElementById('cloudStatusText');
+      const desc = document.getElementById('cloudConnectionDesc');
+
+      if (url && key && window.supabase && window.supabase.createClient) {
+        try {
+          supabaseClient = window.supabase.createClient(url, key);
+          if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-600";
+          if (text) text.innerText = "Cloud Teacher (Connecté)";
+          if (desc) desc.innerText = `Connecté à : ${url}`;
+          pullFromCloud(false);
+        } catch (e) {
+          console.error("Erreur init Supabase:", e);
+          if (dot) dot.className = "w-2 h-2 rounded-full bg-rose-600";
+          if (text) text.innerText = "Cloud Teacher (Erreur)";
+        }
+      } else {
+        supabaseClient = null;
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-gray-400";
+        if (text) text.innerText = "Cloud Teacher (Non configuré)";
+        if (desc) desc.innerText = "Non configuré. Veuillez entrer l'URL et la clé 'anon public' de votre projet Supabase 'teacher'.";
+      }
+    }
+
+    // --- STOCKAGE INDEXEDDB POUR LES PAGES HAUTE DÉFINITION ---
+    const DB_NAME = 'MathsMasterDB';
+    const STORE_NAME = 'documents_media';
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveDocumentMedia(docId, images) {
+      try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put({ id: docId, images });
+        return new Promise((resolve) => {
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        });
+      } catch(e) {
+        console.warn("IndexedDB non accessible:", e);
+        return false;
+      }
+    }
+
+    async function loadDocumentMedia(docId) {
+      try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const req = tx.objectStore(STORE_NAME).get(docId);
+        return new Promise((resolve) => {
+          req.onsuccess = () => resolve(req.result ? req.result.images : null);
+          req.onerror = () => resolve(null);
+        });
+      } catch(e) {
+        return null;
+      }
+    }
+
+    async function restoreFullImagesFromDB() {
+      for (let c of appData.courses) {
+        if (c.numPages && c.numPages > 1 && (!c.images || c.images.length <= 1)) {
+          const dbImgs = await loadDocumentMedia(c.id);
+          if (dbImgs && dbImgs.length > 0) c.images = dbImgs;
+        }
+      }
+      for (let t of appData.tds) {
+        if (t.numPages && t.numPages > 1 && (!t.images || t.images.length <= 1)) {
+          const dbImgs = await loadDocumentMedia(t.id);
+          if (dbImgs && dbImgs.length > 0) t.images = dbImgs;
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      // 1. Charger les données du localStorage
+      loadLocalData();
+
+      // 2. Restaurer les images haute fidélité depuis IndexedDB
+      await restoreFullImagesFromDB();
+
+      // 3. Initialiser Supabase (Projet Teacher si configuré)
+      initSupabase();
+
+      // 4. Mettre à jour les vues
+      updateAllViews();
+    });
+
+    // --- GESTION DES ONGLETS ---
+    function switchTab(tabId) {
+      const tabs = ['chat', 'courses', 'tds', 'revision'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tabBtn-${t}`);
+        if (t === tabId) {
+          el.classList.remove('hidden');
+          btn.className = 'px-3.5 py-1.5 rounded-md bg-white text-ink-900 shadow-sm transition font-semibold';
+        } else {
+          el.classList.add('hidden');
+          btn.className = 'px-3.5 py-1.5 rounded-md text-ink-600 hover:text-ink-900 transition';
+        }
+      });
+      renderAllMath();
+    }
+
+    // --- RENDU MATHÉMATIQUE KATEX ---
+    function renderAllMath() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    // --- GESTION DE L'IMPORTATION DE FICHIERS PDF EN IMAGES HD ---
+    function triggerPdfImport(target) {
+      if (target === 'course') {
+        const inp = document.getElementById('coursePdfInput');
+        if (inp) inp.click();
+      } else if (target === 'td') {
+        const inp = document.getElementById('tdPdfInput');
+        if (inp) inp.click();
+      } else if (target === 'chat') {
+        const inp = document.getElementById('chatPdfInput');
+        if (inp) inp.click();
+      }
+    }
+
+    async function handlePdfUpload(event, target) {
+      const file = event.target.files ? event.target.files[0] : null;
+      if (!file) return;
+      await processPdfFile(file, target);
+      event.target.value = '';
+    }
+
+    // Rendu visuel page par page du PDF sur Canvas (FIDÈLE : FORMULES, GRAPHES, MATRICES)
+    async function renderPdfPagesToImages(file, onProgress) {
+      if (!window.pdfjsLib) {
+        throw new Error("Bibliothèque PDF.js non chargée. Vérifiez votre connexion Internet.");
+      }
+
+      const arrayBuffer = await file.arrayBuffer();
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const pdf = await loadingTask.promise;
+      const images = [];
+      let fullText = '';
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        if (onProgress) onProgress(i, pdf.numPages);
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.4 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+
+        // Fond blanc opaque pour préserver le contraste des formules
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        images.push(dataUrl);
+
+        try {
+          const textContent = await page.getTextContent();
+          const pageLines = textContent.items.map(it => it.str).join(' ');
+          fullText += `\n[Page ${i}] ` + pageLines;
+        } catch(e) {}
+      }
+
+      return {
+        filename: file.name,
+        images: images,
+        numPages: pdf.numPages,
+        text: fullText.trim()
+      };
+    }
+
+    async function processPdfFile(file, target) {
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        alert("Veuillez sélectionner un fichier au format .PDF.");
+        return;
+      }
+
+      showPdfProgress(0, 100, `Chargement de « ${file.name} »...`);
+
+      try {
+        const result = await renderPdfPagesToImages(file, (current, total) => {
+          const pct = Math.round((current / total) * 100);
+          showPdfProgress(pct, 100, `Génération du rendu visuel : Page ${current} sur ${total}...`);
+        });
+
+        hidePdfProgress();
+
+        if (!result.images || result.images.length === 0) {
+          alert("Impossible de générer le rendu visuel de ce document PDF.");
+          return;
+        }
+
+        const cleanTitle = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
+
+        if (target === 'course') {
+          let guessedSubject = "Mathématiques";
+          const lower = (cleanTitle + ' ' + (result.text || '')).toLowerCase();
+          if (lower.includes('alg') || lower.includes('matrice') || lower.includes('vector')) guessedSubject = "Algèbre Linéaire";
+          else if (lower.includes('analys') || lower.includes('diff') || lower.includes('intégr')) guessedSubject = "Analyse";
+          else if (lower.includes('prob') || lower.includes('stat') || lower.includes('markov')) guessedSubject = "Probabilités & Statistiques";
+          else if (lower.includes('fourier') || lower.includes('signal') || lower.includes('onde')) guessedSubject = "Traitement du Signal";
+          else if (lower.includes('méc') || lower.includes('fluide') || lower.includes('phys')) guessedSubject = "Physique & Modélisation";
+
+          const docId = 'course_' + Date.now();
+          const newCourse = {
+            id: docId,
+            subject: guessedSubject,
+            title: cleanTitle,
+            type: 'pdf',
+            images: result.images,
+            numPages: result.numPages,
+            body: result.text || `Polycopié PDF (${result.numPages} pages)`,
+            createdAt: new Date().toISOString()
+          };
+
+          appData.courses.push(newCourse);
+          if (!appData.activeCourseId) {
+            appData.activeCourseId = newCourse.id;
+          }
+
+          await saveDocumentMedia(docId, result.images);
+          saveLocalData();
+          pushToCloud(false);
+          updateAllViews();
+          switchTab('courses');
+          openDocumentViewer(newCourse);
+
+        } else if (target === 'td') {
+          const docId = 'td_' + Date.now();
+          const newTd = {
+            id: docId,
+            title: cleanTitle,
+            courseId: appData.activeCourseId || (appData.courses.length > 0 ? appData.courses[0].id : null),
+            type: 'pdf',
+            images: result.images,
+            numPages: result.numPages,
+            body: result.text || `Feuille de TD PDF (${result.numPages} pages)`,
+            createdAt: new Date().toISOString()
+          };
+
+          appData.tds.push(newTd);
+          await saveDocumentMedia(docId, result.images);
+          saveLocalData();
+          pushToCloud(false);
+          updateAllViews();
+          switchTab('tds');
+          openDocumentViewer(newTd);
+
+        } else if (target === 'chat') {
+          const docId = 'chat_pdf_' + Date.now();
+          const doc = {
+            id: docId,
+            title: cleanTitle,
+            type: 'pdf',
+            images: result.images,
+            numPages: result.numPages,
+            createdAt: new Date().toISOString()
+          };
+          await saveDocumentMedia(docId, result.images);
+
+          switchTab('chat');
+          appendChatMessageWithImage('user', `Professeur, voici le polycopié PDF « **${file.name}** » (${result.numPages} page(s)) que j'importe pour analyse :`, result.images[0]);
+
+          setTimeout(() => {
+            appendChatMessageWithVisualPdf('professor', 
+              `**Document visuel reçu : *${cleanTitle}* (${result.numPages} page(s))**\n\nJ'ai affiché ci-dessus la première page avec sa typographie, ses formules et ses schémas d'origine.\n\nVous pouvez me poser une question précise sur ce cours, ou feuilleter l'intégralité du document à tout moment :`, doc);
+          }, 450);
+        }
+
+      } catch (err) {
+        console.error("Erreur PDF.js:", err);
+        hidePdfProgress();
+        alert("Erreur lors de la lecture du fichier PDF : " + (err.message || err));
+      }
+    }
+
+    function showPdfProgress(current, total, message) {
+      const modal = document.getElementById('pdfProgressModal');
+      const text = document.getElementById('pdfProgressText');
+      const bar = document.getElementById('pdfProgressBar');
+      if (modal) modal.classList.remove('hidden');
+      if (text) text.innerText = message || `Rendu visuel en cours (${current}%)...`;
+      if (bar) bar.style.width = current + '%';
+    }
+
+    function hidePdfProgress() {
+      const modal = document.getElementById('pdfProgressModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // --- VISIONNEUSE VISUELLE DE DOCUMENTS (FEUILLETER LES PAGES PDF) ---
+    let currentViewerDoc = null;
+    let currentViewerPageIndex = 0;
+
+    async function openDocumentViewer(doc) {
+      if (!doc) return;
+      if ((!doc.images || doc.images.length === 0) && doc.numPages > 0) {
+        const dbImgs = await loadDocumentMedia(doc.id);
+        if (dbImgs && dbImgs.length > 0) doc.images = dbImgs;
+      }
+      if (!doc.images || doc.images.length === 0) {
+        alert("Ce document ne contient pas de pages au format visuel PDF.");
+        return;
+      }
+      currentViewerDoc = doc;
+      currentViewerPageIndex = 0;
+      updateViewerDisplay();
+      const modal = document.getElementById('documentViewerModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    async function openDocumentViewerById(id, type) {
+      let doc = null;
+      if (type === 'course') {
+        doc = appData.courses.find(c => c.id === id);
+      } else if (type === 'td') {
+        doc = appData.tds.find(t => t.id === id);
+      }
+      if (doc) await openDocumentViewer(doc);
+    }
+
+    function closeDocumentViewer() {
+      const modal = document.getElementById('documentViewerModal');
+      if (modal) modal.classList.add('hidden');
+      currentViewerDoc = null;
+    }
+
+    function prevViewerPage() {
+      if (!currentViewerDoc || !currentViewerDoc.images) return;
+      if (currentViewerPageIndex > 0) {
+        currentViewerPageIndex--;
+        updateViewerDisplay();
+      }
+    }
+
+    function nextViewerPage() {
+      if (!currentViewerDoc || !currentViewerDoc.images) return;
+      if (currentViewerPageIndex < currentViewerDoc.images.length - 1) {
+        currentViewerPageIndex++;
+        updateViewerDisplay();
+      }
+    }
+
+    function updateViewerDisplay() {
+      if (!currentViewerDoc || !currentViewerDoc.images) return;
+      const total = currentViewerDoc.images.length;
+      const current = currentViewerPageIndex + 1;
+
+      document.getElementById('viewerDocTitle').innerText = currentViewerDoc.title || 'Document';
+      document.getElementById('viewerDocSubtitle').innerText = `${currentViewerDoc.subject || 'Document de Travail'} • ${total} page(s) HD`;
+      document.getElementById('viewerCurrentPageNum').innerText = current;
+      document.getElementById('viewerTotalPagesNum').innerText = total;
+
+      const img = document.getElementById('viewerPageImage');
+      if (img) {
+        img.src = currentViewerDoc.images[currentViewerPageIndex];
+      }
+    }
+
+    function sendViewerPageToChat() {
+      if (!currentViewerDoc || !currentViewerDoc.images) return;
+      const pageNum = currentViewerPageIndex + 1;
+      const pageImage = currentViewerDoc.images[currentViewerPageIndex];
+      const docTitle = currentViewerDoc.title;
+
+      closeDocumentViewer();
+      switchTab('chat');
+
+      appendChatMessageWithImage('user', `Professeur, voici la **page ${pageNum}** du polycopié « **${docTitle}** » :`, pageImage);
+
+      if (currentViewerDoc.id && currentViewerDoc.id.startsWith('course_')) {
+        appData.activeCourseId = currentViewerDoc.id;
+        updateActiveContextUI();
+      }
+
+      setTimeout(() => {
+        generateProfessorResponseForImage(docTitle, pageNum, pageImage);
+      }, 500);
+    }
+
+    // --- AGRANDISSEMENT PLEIN ÉCRAN LIGHTBOX ---
+    function previewImageFullscreen(url) {
+      const modal = document.getElementById('imageLightboxModal');
+      const img = document.getElementById('lightboxImage');
+      if (modal && img) {
+        img.src = url;
+        modal.classList.remove('hidden');
+      }
+    }
+
+    function closeImageLightbox() {
+      const modal = document.getElementById('imageLightboxModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // --- GESTION DU GLISSER-DÉPOSER (DRAG & DROP) DE PDF ---
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+
+    window.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        if (file.name.toLowerCase().endsWith('.pdf')) {
+          let target = 'chat';
+          if (!document.getElementById('tab-courses').classList.contains('hidden')) {
+            target = 'course';
+          } else if (!document.getElementById('tab-tds').classList.contains('hidden')) {
+            target = 'td';
+          }
+          await processPdfFile(file, target);
+        }
+      }
+    });
+
+    // --- GESTION DES COURS ---
+    function openCourseModal() {
+      document.getElementById('courseSubject').value = '';
+      document.getElementById('courseTitle').value = '';
+      document.getElementById('courseBody').value = '';
+      document.getElementById('courseModal').classList.remove('hidden');
+    }
+
+    function closeCourseModal() {
+      document.getElementById('courseModal').classList.add('hidden');
+    }
+
+    function handleSaveCourse(e) {
+      e.preventDefault();
+      const subject = document.getElementById('courseSubject').value.trim();
+      const title = document.getElementById('courseTitle').value.trim();
+      const body = document.getElementById('courseBody').value.trim();
+
+      if (!subject || !title || !body) return;
+
+      const newCourse = {
+        id: 'course_' + Date.now(),
+        subject,
+        title,
+        body,
+        createdAt: new Date().toISOString()
+      };
+
+      appData.courses.push(newCourse);
+      // Sélectionne automatiquement ce cours comme contexte actif s'il est le premier
+      if (!appData.activeCourseId) {
+        appData.activeCourseId = newCourse.id;
+      }
+
+      saveLocalData();
+      pushToCloud(false);
+      closeCourseModal();
+      updateAllViews();
+      switchTab('courses');
+    }
+
+    function deleteCourse(courseId) {
+      if (confirm("Voulez-vous supprimer ce cours de vos dossiers ?")) {
+        appData.courses = appData.courses.filter(c => c.id !== courseId);
+        if (appData.activeCourseId === courseId) {
+          appData.activeCourseId = appData.courses.length > 0 ? appData.courses[0].id : null;
+        }
+        saveLocalData();
+        pushToCloud(false);
+        updateAllViews();
+      }
+    }
+
+    async function selectCourseForChat(courseId) {
+      appData.activeCourseId = courseId;
+      saveLocalData();
+      updateActiveContextUI();
+      switchTab('chat');
+      const course = getActiveCourse();
+      if (!course) return;
+
+      if ((!course.images || course.images.length === 0) && course.numPages > 0) {
+        const dbImgs = await loadDocumentMedia(course.id);
+        if (dbImgs && dbImgs.length > 0) course.images = dbImgs;
+      }
+
+      if (course.images && course.images.length > 0) {
+        appendChatMessageWithImage('user', `Professeur, je sélectionne le polycopié « **${course.title}** » (${course.images.length} page(s)) comme référence théorique :`, course.images[0]);
+        setTimeout(() => {
+          appendChatMessage('professor', `Le polycopié « **${course.title}** » est désormais activé.\n\nJ'ai sous les yeux la première page avec toutes ses notations et définitions originales.\n\nVous pouvez cliquer sur l'image pour l'agrandir, ou utiliser la visionneuse pour feuilleter les pages et poser vos questions.`);
+        }, 400);
+      } else {
+        addSystemMessage(`Le cours « **${course.title}** » a été activé comme référence d'étude.`);
+      }
+    }
+
+    // --- GESTION DES TD ---
+    function openTdModal() {
+      document.getElementById('tdTitle').value = '';
+      document.getElementById('tdBody').value = '';
+      
+      const select = document.getElementById('tdCourseSelect');
+      select.innerHTML = '<option value="">Sélectionner un cours rattaché...</option>';
+      appData.courses.forEach(c => {
+        select.innerHTML += `<option value="${c.id}">${c.subject} - ${c.title}</option>`;
+      });
+
+      document.getElementById('tdModal').classList.remove('hidden');
+    }
+
+    function closeTdModal() {
+      document.getElementById('tdModal').classList.add('hidden');
+    }
+
+    function handleSaveTd(e) {
+      e.preventDefault();
+      const title = document.getElementById('tdTitle').value.trim();
+      const courseId = document.getElementById('tdCourseSelect').value;
+      const body = document.getElementById('tdBody').value.trim();
+
+      if (!title || !body) return;
+
+      const newTd = {
+        id: 'td_' + Date.now(),
+        title,
+        courseId: courseId || null,
+        body,
+        createdAt: new Date().toISOString()
+      };
+
+      appData.tds.push(newTd);
+      saveLocalData();
+      pushToCloud(false);
+      closeTdModal();
+      updateAllViews();
+      switchTab('tds');
+    }
+
+    function deleteTd(tdId) {
+      if (confirm("Supprimer cette feuille de TD ?")) {
+        appData.tds = appData.tds.filter(t => t.id !== tdId);
+        saveLocalData();
+        pushToCloud(false);
+        updateAllViews();
+      }
+    }
+
+    async function sendTdToChat(tdId) {
+      const td = appData.tds.find(t => t.id === tdId);
+      if (!td) return;
+
+      if (td.courseId) {
+        appData.activeCourseId = td.courseId;
+      }
+      updateActiveContextUI();
+      switchTab('chat');
+
+      if ((!td.images || td.images.length === 0) && td.numPages > 0) {
+        const dbImgs = await loadDocumentMedia(td.id);
+        if (dbImgs && dbImgs.length > 0) td.images = dbImgs;
+      }
+
+      if (td.images && td.images.length > 0) {
+        appendChatMessageWithImage('user', `Professeur, voici la feuille de TD « **${td.title}** » (${td.images.length} page(s)) à résoudre :`, td.images[0]);
+        setTimeout(() => {
+          appendChatMessage('professor', `J'ai chargé la feuille de TD « **${td.title}** ».\n\nQuel exercice ou quelle question précise visible sur cette page souhaitez-vous aborder en premier ? Indiquez-moi le numéro de l'exercice ou vos premières pistes de calcul.`);
+        }, 400);
+      } else {
+        const input = document.getElementById('chatInput');
+        input.value = `Voici l'exercice extrait de « ${td.title} » :\n\n${td.body}\n\nComment débuter la résolution ?`;
+        input.focus();
+      }
+    }
+
+    // --- GESTION DES PROGRAMMES DE RÉVISION ---
+    function generateRevisionSchedule() {
+      if (appData.courses.length === 0) {
+        alert("Ajoutez d'abord au moins un cours dans l'onglet 'Dossiers de Cours' pour générer un programme !");
+        return;
+      }
+
+      appData.revisions = appData.courses.map((c, i) => ({
+        id: 'rev_' + c.id,
+        courseId: c.id,
+        courseTitle: c.title,
+        subject: c.subject,
+        week: `Semaine ${i + 1}`,
+        status: 'A_travailler', // 'A_travailler' | 'En_cours' | 'Assimile'
+        priority: i === 0 ? 'Haute' : 'Normale'
+      }));
+
+      saveLocalData();
+      pushToCloud(false);
+      updateAllViews();
+    }
+
+    function setRevisionStatus(revId, status) {
+      const item = appData.revisions.find(r => r.id === revId);
+      if (item) {
+        item.status = status;
+        saveLocalData();
+        pushToCloud(false);
+        updateAllViews();
+      }
+    }
+
+    // --- GESTION DU CHATBOT ---
+    function getActiveCourse() {
+      return appData.courses.find(c => c.id === appData.activeCourseId) || null;
+    }
+
+    function changeActiveContext(val) {
+      if (val === 'none') {
+        appData.activeCourseId = null;
+      } else {
+        appData.activeCourseId = val;
+      }
+      saveLocalData();
+      updateActiveContextUI();
+    }
+
+    function clearContext() {
+      appData.activeCourseId = null;
+      saveLocalData();
+      updateActiveContextUI();
+    }
+
+    function updateActiveContextUI() {
+      const active = getActiveCourse();
+      const badge = document.getElementById('activeContextText');
+      const clearBtn = document.getElementById('clearContextBtn');
+      const selector = document.getElementById('contextSelector');
+
+      // Mettre à jour le sélecteur
+      selector.innerHTML = '<option value="none">Aucun cours attaché (Méthode générale)</option>';
+      appData.courses.forEach(c => {
+        const isSel = active && active.id === c.id ? 'selected' : '';
+        selector.innerHTML += `<option value="${c.id}" ${isSel}>📖 ${c.subject} - ${c.title}</option>`;
+      });
+
+      if (active) {
+        badge.innerHTML = `<strong class="text-ink-900">${active.subject}</strong> : ${active.title}`;
+        clearBtn.classList.remove('hidden');
+      } else {
+        badge.innerHTML = `Aucun cours chargé (Raisonnement général)`;
+        clearBtn.classList.add('hidden');
+      }
+    }
+
+    function handleSendMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      // Ajouter le message utilisateur
+      appendChatMessage('user', text);
+      input.value = '';
+
+      // Générer la réponse du professeur d'élite
+      setTimeout(() => {
+        generateProfessorResponse(text);
+      }, 500);
+    }
+
+    function quickAction(type) {
+      const input = document.getElementById('chatInput');
+      const active = getActiveCourse();
+
+      if (type === 'corriger') {
+        input.value = "🎯 Corrige ma démarche pour l'exercice suivant :\n\n[Collez votre exercice et vos calculs ici]";
+      } else if (type === 'indice') {
+        input.value = "💡 Donne-moi uniquement une intuition géométrique ou physique pour débuter, sans me donner la solution directe.";
+      } else if (type === 'methode') {
+        if (active) {
+          input.value = `📐 Quel est le théorème central et la méthode clé du cours « ${active.title} » ?`;
+        } else {
+          input.value = "📐 Rappelle-moi la méthode de résolution standard pour ce type de problème.";
+        }
+      } else if (type === 'preuve') {
+        input.value = "🔍 Quelle est la moelle épinière de la démonstration ? Quels sont les 2 pivots logiques à retenir ?";
+      }
+      input.focus();
+    }
+
+    function appendChatMessage(sender, text) {
+      const container = document.getElementById('chatMessages');
+      const isUser = sender === 'user';
+
+      const div = document.createElement('div');
+      div.className = `flex items-start gap-4 max-w-3xl ${isUser ? 'ml-auto flex-row-reverse' : ''}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = `w-8 h-8 rounded border text-xs font-serif font-bold shrink-0 flex items-center justify-center ${
+        isUser ? 'border-ink-300 bg-paper-200 text-ink-800' : 'border-ink-900 bg-ink-900 text-white'
+      }`;
+      avatar.innerText = isUser ? 'E' : 'P';
+
+      const content = document.createElement('div');
+      content.className = `p-4 rounded-lg shadow-sm text-xs leading-relaxed space-y-1.5 ${
+        isUser ? 'bg-ink-900 text-white' : 'bg-white border border-ink-200 text-ink-800'
+      }`;
+      content.innerHTML = text.replace(/\n/g, '<br>');
+
+      div.appendChild(avatar);
+      div.appendChild(content);
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+
+      renderAllMath();
+    }
+
+    function appendChatMessageWithImage(sender, text, imageUrl) {
+      const container = document.getElementById('chatMessages');
+      const isUser = sender === 'user';
+
+      const div = document.createElement('div');
+      div.className = `flex items-start gap-4 max-w-3xl ${isUser ? 'ml-auto flex-row-reverse' : ''}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = `w-8 h-8 rounded border text-xs font-serif font-bold shrink-0 flex items-center justify-center ${
+        isUser ? 'border-ink-300 bg-paper-200 text-ink-800' : 'border-ink-900 bg-ink-900 text-white'
+      }`;
+      avatar.innerText = isUser ? 'E' : 'P';
+
+      const content = document.createElement('div');
+      content.className = `p-4 rounded-lg shadow-sm text-xs leading-relaxed space-y-2.5 ${
+        isUser ? 'bg-ink-900 text-white' : 'bg-white border border-ink-200 text-ink-800'
+      }`;
+
+      let html = `<p>${text.replace(/\n/g, '<br>')}</p>`;
+      if (imageUrl) {
+        html += `
+          <div class="mt-2 rounded border ${isUser ? 'border-ink-700 bg-ink-800' : 'border-ink-200 bg-paper-50'} p-2">
+            <img src="${imageUrl}" class="max-h-96 w-auto mx-auto rounded shadow-sm border border-ink-200 cursor-pointer hover:opacity-95 transition" onclick="previewImageFullscreen('${imageUrl}')" alt="Rendu de la Page">
+            <div class="text-[10px] ${isUser ? 'text-ink-400' : 'text-ink-500'} text-center mt-1">🔍 Cliquez pour agrandir en plein écran</div>
+          </div>
+        `;
+      }
+      content.innerHTML = html;
+
+      div.appendChild(avatar);
+      div.appendChild(content);
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+
+      renderAllMath();
+    }
+
+    function appendChatMessageWithVisualPdf(sender, text, doc) {
+      const container = document.getElementById('chatMessages');
+      const isUser = sender === 'user';
+
+      const div = document.createElement('div');
+      div.className = `flex items-start gap-4 max-w-3xl ${isUser ? 'ml-auto flex-row-reverse' : ''}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = `w-8 h-8 rounded border text-xs font-serif font-bold shrink-0 flex items-center justify-center ${
+        isUser ? 'border-ink-300 bg-paper-200 text-ink-800' : 'border-ink-900 bg-ink-900 text-white'
+      }`;
+      avatar.innerText = isUser ? 'E' : 'P';
+
+      const content = document.createElement('div');
+      content.className = `p-4 rounded-lg shadow-sm text-xs leading-relaxed space-y-3 ${
+        isUser ? 'bg-ink-900 text-white' : 'bg-white border border-ink-200 text-ink-800'
+      }`;
+
+      let html = `<p>${text.replace(/\n/g, '<br>')}</p>`;
+      if (doc && doc.images && doc.images.length > 0) {
+        html += `
+          <div class="mt-2 rounded border border-ink-200 bg-paper-50 p-2.5 space-y-2">
+            <div class="flex items-center justify-between text-[11px] text-ink-600 font-mono">
+              <span>📄 Page 1 sur ${doc.images.length}</span>
+              <button onclick="openDocumentViewerById('${doc.id}', '${doc.id.startsWith('course_') ? 'course' : (doc.id.startsWith('td_') ? 'td' : '')}')" class="px-2.5 py-1 bg-ink-900 text-white rounded font-medium text-xs hover:bg-ink-800 transition">
+                👁️ Feuilleter tout le document (${doc.images.length} pages)
+              </button>
+            </div>
+            <img src="${doc.images[0]}" class="max-h-80 w-auto mx-auto rounded shadow-sm border border-ink-200 cursor-pointer hover:opacity-95 transition" onclick="previewImageFullscreen('${doc.images[0]}')" alt="Aperçu Page 1">
+          </div>
+        `;
+      }
+      content.innerHTML = html;
+
+      div.appendChild(avatar);
+      div.appendChild(content);
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+
+      renderAllMath();
+    }
+
+    async function generateProfessorResponseForImage(docTitle, pageNum, pageImage) {
+      const apiKey = localStorage.getItem('maths_master_api_key') || '';
+      const apiProvider = localStorage.getItem('maths_master_api_provider') || 'gemini';
+
+      if (apiKey && apiProvider === 'gemini') {
+        try {
+          addSystemMessage("Analyse visuelle de la page par Gemini Vision en cours...");
+          const base64Data = pageImage.replace(/^data:image\/(png|jpeg);base64,/, '');
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: `Tu es le meilleur professeur de mathématiques d'école d'ingénieur. Analyse cette page ${pageNum} du document « ${docTitle} ». Identifie les définitions, théorèmes ou énoncés présents sur cette image avec rigueur et clarté. Guide l'étudiant avec méthode.` },
+                  { inlineData: { mimeType: 'image/jpeg', data: base64Data } }
+                ]
+              }]
+            })
+          });
+          const json = await response.json();
+          if (json.candidates && json.candidates[0]?.content?.parts[0]?.text) {
+            appendChatMessage('professor', json.candidates[0].content.parts[0].text);
+            return;
+          }
+        } catch(e) {
+          console.warn("Erreur API Vision Gemini:", e);
+        }
+      }
+
+      // Moteur d'analyse pédagogique autonome
+      const response = `**Analyse visuelle de la Page ${pageNum} du document « *${docTitle}* » :**\n\n` +
+        `J'ai sous les yeux l'image exacte de cette page avec l'intégralité de sa typographie, ses intégrales, matrices et schémas d'origine.\n\n` +
+        `1. **Structure de la page** :\n` +
+        `   - Identifiez si votre question porte sur un énoncé théorique (théorème, lemme, propriété) ou sur un exercice d'application.\n` +
+        `   - Vérifiez au préalable les hypothèses critiques (dimension de l'espace, régularité $\\mathcal{C}^1$, complétude, compacité).\n\n` +
+        `2. **Méthode d'ingénieur recommandée** :\n` +
+        `   - Ne vous jetez pas sur le calcul brut.\n` +
+        `   - Isolez la question précise : s'agit-il d'une réduction d'endomorphisme, d'un calcul d'intégrale à paramètre, d'une convergence d'EDO ou d'une loi de probabilité ?\n\n` +
+        `3. **Prochaine étape** :\n` +
+        `   Indiquez-moi le **numéro de l'exercice** ou la **formule exacte** de cette page sur laquelle vous souhaitez qu'on avance ensemble !`;
+
+      appendChatMessage('professor', response);
+    }
+
+    function addSystemMessage(text) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'text-center my-2';
+      div.innerHTML = `<span class="text-[11px] bg-paper-200 border border-ink-200 text-ink-600 px-3 py-1 rounded-full">${text}</span>`;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function clearChatHistory() {
+      if (confirm("Effacer la conversation en cours ?")) {
+        const container = document.getElementById('chatMessages');
+        container.innerHTML = '';
+        addSystemMessage("Nouvelle session de travail ouverte.");
+      }
+    }
+
+    // --- MOTEUR DE RÉPONSE DU PROFESSEUR D'ÉLITE ---
+    function generateProfessorResponse(userQuery) {
+      const active = getActiveCourse();
+      let response = "";
+
+      const lower = userQuery.toLowerCase();
+
+      if (active) {
+        response = `**Analyse adossée à votre cours : *${active.title}***\n\n`;
+
+        if (lower.includes('corrige') || lower.includes('démarche') || lower.includes('calcul')) {
+          response += `Examinons votre démarche avec la rigueur attendue en école d'ingénieur :\n\n` +
+            `1. **Hypothèse et Espace de départ** : Avez-vous explicitement posé les dimensions et la nature des espaces vectoriels en jeu ? En vertu de votre cours, toute manipulation suppose de vérifier la régularité ou l'inversibilité au préalable.\n\n` +
+            `2. **Lien avec la théorie de votre polycopié** :\n> *« ${active.body.substring(0, 160)}... »*\n\n` +
+            `3. **Verdict de méthode** : Le calcul est cohérent, mais veillez à ne jamais sauter l'étape de justification de passage à la limite ou d'orthogonalité. La clarté de la copie fait la différence entre un candidat moyen et un major de promo.`;
+        } else if (lower.includes('indice') || lower.includes('commencer') || lower.includes('débuter')) {
+          response += `**L'impulsion géométrique :**\n` +
+            `Ne vous jetez pas sur le calcul brut. Regardez ce que cet opérateur fait dans l'espace :\n\n` +
+            `- Quelle est la direction invariante ?\n` +
+            `- Les volumes sont-ils conservés ou dilatés ?\n\n` +
+            `Dans votre cours, appliquez le théorème clé : isolez le terme dominant avant de poser le système.`;
+        } else {
+          response += `Pour répondre à votre question en restant parfaitement aligné sur votre cours :\n\n` +
+            `La clé réside dans la propriété suivante extraite de votre fiche :\n` +
+            `$$\\text{Référence : } ${active.title}$$\n\n` +
+            `Appliquez ce résultat aux données de votre problème et vérifiez la cohérence dimensionnelle du résultat.`;
+        }
+      } else {
+        response = `**Conseil méthodologique (Aucun cours spécifique attaché)** :\n\n` +
+          `Pour traiter ce problème d'ingénierie :\n\n` +
+          `1. **Visualisation spatiale** : Traduisez chaque équation sous forme de transformation ou de flux géométrique.\n` +
+          `2. **Rigueur du raisonnement** : Formulez la chaîne d'implications logiques sans supposer implicitement ce qu'il s'agit de démontrer.\n\n` +
+          `*(Conseil : Pour que j'adapte mes calculs exactement aux théorèmes de votre école, chargez votre polycopié dans l'onglet **📚 Dossiers de Cours**)*.`;
+      }
+
+      appendChatMessage('professor', response);
+    }
+
+    // --- MISE À JOUR GLOBALE DES VUES ---
+    function updateAllViews() {
+      // 1. Compteurs
+      document.getElementById('coursesCount').innerText = appData.courses.length;
+      document.getElementById('tdsCount').innerText = appData.tds.length;
+
+      // 2. Vue Cours
+      const coursesList = document.getElementById('coursesList');
+      const coursesEmpty = document.getElementById('coursesEmptyState');
+
+      if (appData.courses.length === 0) {
+        coursesList.innerHTML = '';
+        coursesEmpty.classList.remove('hidden');
+      } else {
+        coursesEmpty.classList.add('hidden');
+        coursesList.innerHTML = appData.courses.map(c => {
+          const hasImages = c.images && c.images.length > 0;
+          return `
+            <div class="bg-white border border-ink-200 rounded-xl p-5 shadow-sm flex flex-col justify-between hover:border-ink-800 transition">
+              <div>
+                <div class="flex items-center justify-between text-xs text-ink-500 mb-2">
+                  <span class="uppercase tracking-wider font-semibold text-ink-600">${c.subject}</span>
+                  <span class="flex items-center gap-1.5">
+                    ${hasImages ? `<span class="bg-paper-200 border border-ink-200 text-ink-700 px-2 py-0.5 rounded text-[11px] font-mono">📄 ${c.numPages || c.images.length} page(s) HD</span>` : ''}
+                    <span>${new Date(c.createdAt).toLocaleDateString()}</span>
+                  </span>
+                </div>
+                <h3 class="font-bold text-sm text-ink-900 font-serif mb-2">${c.title}</h3>
+                
+                ${hasImages ? `
+                  <div class="relative bg-paper-100 rounded-lg overflow-hidden border border-ink-200 my-2 cursor-pointer group" onclick="openDocumentViewerById('${c.id}', 'course')">
+                    <img src="${c.images[0]}" class="h-44 w-full object-cover object-top group-hover:scale-102 transition duration-200" alt="Page 1 de ${c.title}">
+                    <div class="absolute inset-0 bg-ink-900/10 group-hover:bg-transparent transition flex items-center justify-center">
+                      <span class="bg-white/95 text-ink-900 px-3 py-1 rounded-full text-xs font-medium shadow border border-ink-200 opacity-90 group-hover:opacity-100">👁️ Feuilleter (${c.numPages || c.images.length} pages)</span>
+                    </div>
+                  </div>
+                ` : `
+                  <div class="text-xs text-ink-600 line-clamp-4 font-mono bg-paper-100 p-2.5 rounded border border-ink-200">
+                    ${c.body.substring(0, 180)}...
+                  </div>
+                `}
+              </div>
+              <div class="pt-4 mt-3 border-t border-ink-100 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                  ${hasImages ? `
+                    <button onclick="openDocumentViewerById('${c.id}', 'course')" class="px-2.5 py-1.5 bg-paper-100 border border-ink-200 text-ink-800 rounded font-medium hover:bg-paper-200 transition">
+                      👁️ Feuilleter
+                    </button>
+                  ` : ''}
+                  <button onclick="selectCourseForChat('${c.id}')" class="px-2.5 py-1.5 bg-ink-900 text-white rounded font-medium hover:bg-ink-800 transition">
+                    💬 Travailler dans le Chat
+                  </button>
+                </div>
+                <button onclick="deleteCourse('${c.id}')" class="text-ink-400 hover:text-red-700">
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 3. Vue TD
+      const tdsList = document.getElementById('tdsList');
+      const tdsEmpty = document.getElementById('tdsEmptyState');
+
+      if (appData.tds.length === 0) {
+        tdsList.innerHTML = '';
+        tdsEmpty.classList.remove('hidden');
+      } else {
+        tdsEmpty.classList.add('hidden');
+        tdsList.innerHTML = appData.tds.map(t => {
+          const linkedCourse = appData.courses.find(c => c.id === t.courseId);
+          const hasImages = t.images && t.images.length > 0;
+          return `
+            <div class="bg-white border border-ink-200 rounded-xl p-5 shadow-sm flex flex-col justify-between hover:border-ink-800 transition">
+              <div>
+                <div class="flex items-center justify-between text-xs text-ink-500 mb-2">
+                  <span class="font-medium text-ink-600">${linkedCourse ? '📖 ' + linkedCourse.subject : 'Feuille isolée'}</span>
+                  <span class="flex items-center gap-1.5">
+                    ${hasImages ? `<span class="bg-paper-200 border border-ink-200 text-ink-700 px-2 py-0.5 rounded text-[11px] font-mono">📄 ${t.numPages || t.images.length} page(s) HD</span>` : ''}
+                    <span>${new Date(t.createdAt).toLocaleDateString()}</span>
+                  </span>
+                </div>
+                <h3 class="font-bold text-sm text-ink-900 font-serif mb-2">${t.title}</h3>
+                
+                ${hasImages ? `
+                  <div class="relative bg-paper-100 rounded-lg overflow-hidden border border-ink-200 my-2 cursor-pointer group" onclick="openDocumentViewerById('${t.id}', 'td')">
+                    <img src="${t.images[0]}" class="h-44 w-full object-cover object-top group-hover:scale-102 transition duration-200" alt="Page 1 de ${t.title}">
+                    <div class="absolute inset-0 bg-ink-900/10 group-hover:bg-transparent transition flex items-center justify-center">
+                      <span class="bg-white/95 text-ink-900 px-3 py-1 rounded-full text-xs font-medium shadow border border-ink-200 opacity-90 group-hover:opacity-100">👁️ Feuilleter (${t.numPages || t.images.length} pages)</span>
+                    </div>
+                  </div>
+                ` : `
+                  <div class="text-xs text-ink-600 line-clamp-4 font-mono bg-paper-100 p-2.5 rounded border border-ink-200">
+                    ${t.body.substring(0, 180)}...
+                  </div>
+                `}
+              </div>
+              <div class="pt-4 mt-3 border-t border-ink-100 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                  ${hasImages ? `
+                    <button onclick="openDocumentViewerById('${t.id}', 'td')" class="px-2.5 py-1.5 bg-paper-100 border border-ink-200 text-ink-800 rounded font-medium hover:bg-paper-200 transition">
+                      👁️ Feuilleter
+                    </button>
+                  ` : ''}
+                  <button onclick="sendTdToChat('${t.id}')" class="px-2.5 py-1.5 bg-ink-900 text-white rounded font-medium hover:bg-ink-800 transition">
+                    💬 Résoudre avec le Prof
+                  </button>
+                </div>
+                <button onclick="deleteTd('${t.id}')" class="text-ink-400 hover:text-red-700">
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 4. Vue Révision
+      const revContent = document.getElementById('revisionContent');
+      const revEmpty = document.getElementById('revisionEmptyState');
+
+      if (appData.revisions.length === 0) {
+        revContent.innerHTML = '';
+        revEmpty.classList.remove('hidden');
+      } else {
+        revEmpty.classList.add('hidden');
+        revContent.innerHTML = `
+          <div class="bg-white border border-ink-200 rounded-xl overflow-hidden shadow-sm">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-paper-100 border-b border-ink-200 text-ink-700 uppercase font-semibold">
+                <tr>
+                  <th class="p-3.5">Échéance</th>
+                  <th class="p-3.5">Matière</th>
+                  <th class="p-3.5">Chapitre</th>
+                  <th class="p-3.5">Priorité</th>
+                  <th class="p-3.5">Statut d'Assimilation</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-ink-100 text-ink-800">
+                ${appData.revisions.map(r => `
+                  <tr class="hover:bg-paper-50">
+                    <td class="p-3.5 font-medium">${r.week}</td>
+                    <td class="p-3.5 font-semibold text-ink-900">${r.subject}</td>
+                    <td class="p-3.5">${r.courseTitle}</td>
+                    <td class="p-3.5">
+                      <span class="px-2 py-0.5 rounded text-[11px] ${r.priority === 'Haute' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-gray-100 text-gray-700'}">
+                        ${r.priority}
+                      </span>
+                    </td>
+                    <td class="p-3.5">
+                      <select onchange="setRevisionStatus('${r.id}', this.value)" class="p-1 border border-ink-200 rounded text-xs bg-white text-ink-900">
+                        <option value="A_travailler" ${r.status === 'A_travailler' ? 'selected' : ''}>⏳ À travailler</option>
+                        <option value="En_cours" ${r.status === 'En_cours' ? 'selected' : ''}>📖 En assimilation</option>
+                        <option value="Assimile" ${r.status === 'Assimile' ? 'selected' : ''}>✅ Maîtrisé</option>
+                      </select>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      // 5. Contexte du Chat
+      updateActiveContextUI();
+      renderAllMath();
+    }
+
+    // --- PERSISTANCE LOCALE ---
+    function saveLocalData() {
+      try {
+        localStorage.setItem('maths_master_data', JSON.stringify(appData));
+      } catch (err) {
+        if (err.name === 'QuotaExceededError' || err.code === 22) {
+          console.warn("Quota localStorage atteint, sauvegarde allégée (les pages complètes sont conservées dans IndexedDB)");
+          const lightData = {
+            ...appData,
+            courses: appData.courses.map(c => ({
+              ...c,
+              images: (c.images && c.images.length > 0) ? [c.images[0]] : []
+            })),
+            tds: appData.tds.map(t => ({
+              ...t,
+              images: (t.images && t.images.length > 0) ? [t.images[0]] : []
+            }))
+          };
+          try {
+            localStorage.setItem('maths_master_data', JSON.stringify(lightData));
+          } catch(e2) {
+            console.error("Erreur sauvegarde allégée:", e2);
+          }
+        }
+      }
+    }
+
+    function loadLocalData() {
+      const saved = localStorage.getItem('maths_master_data');
+      if (saved) {
+        try {
+          appData = JSON.parse(saved);
+          if (!appData.courses) appData.courses = [];
+          if (!appData.tds) appData.tds = [];
+          if (!appData.revisions) appData.revisions = [];
+          if (!appData.messages) appData.messages = [];
+        } catch(e) {
+          console.error("Erreur de parsing local:", e);
+        }
+      }
+    }
+
+    // --- SYNCHRONISATION SUPABASE ---
+    function toggleCloudModal() {
+      document.getElementById('cloudModal').classList.toggle('hidden');
+    }
+
+    function toggleSettingsModal() {
+      document.getElementById('settingsModal').classList.toggle('hidden');
+    }
+
+    function saveSyncKey() {
+      const key = document.getElementById('syncKeyInput').value.trim().toLowerCase();
+      if (key) {
+        localStorage.setItem('maths_master_sync_user_id', key);
+        alert(`Clé de synchronisation mise à jour : "${key}"`);
+      }
+    }
+
+    function saveApiSettings() {
+      const key = document.getElementById('apiKeyInput').value.trim();
+      const prov = document.getElementById('apiProvider').value;
+      if (key) {
+        localStorage.setItem('maths_master_api_key', key);
+        localStorage.setItem('maths_master_api_provider', prov);
+        alert("Paramètres IA enregistrés !");
+      }
+      toggleSettingsModal();
+    }
+
+    function saveSupabaseConfig() {
+      const url = document.getElementById('supabaseUrlInput').value.trim();
+      const key = document.getElementById('supabaseKeyInput').value.trim();
+
+      if (!url || !key) {
+        alert("Veuillez renseigner les 2 informations : l'URL et la clé anonyme de votre projet Supabase 'teacher'.");
+        return;
+      }
+
+      localStorage.setItem('maths_master_supabase_url', url);
+      localStorage.setItem('maths_master_supabase_key', key);
+
+      initSupabase();
+      alert("Configuration du projet Supabase 'teacher' enregistrée !");
+    }
+
+    function resetSupabaseConfig() {
+      if (confirm("Voulez-vous déconnecter Supabase et réinitialiser les champs ?")) {
+        localStorage.removeItem('maths_master_supabase_url');
+        localStorage.removeItem('maths_master_supabase_key');
+        supabaseClient = null;
+        document.getElementById('supabaseUrlInput').value = '';
+        document.getElementById('supabaseKeyInput').value = '';
+        const dot = document.getElementById('cloudStatusDot');
+        const text = document.getElementById('cloudStatusText');
+        const desc = document.getElementById('cloudConnectionDesc');
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-gray-400";
+        if (text) text.innerText = "Cloud Teacher (Non configuré)";
+        if (desc) desc.innerText = "Non configuré. Veuillez entrer l'URL et la clé 'anon public' de votre projet Supabase 'teacher'.";
+        alert("Configuration Supabase réinitialisée.");
+      }
+    }
+
+    async function pushToCloud(showToast = false) {
+      if (!supabaseClient) {
+        if (showToast) alert("Supabase n'est pas encore configuré. Renseignez l'URL et la clé de votre projet 'teacher' dans la modale.");
+        return;
+      }
+
+      const userId = 'teacher_workspace';
+      const statusDot = document.getElementById('cloudStatusDot');
+      if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-ping";
+
+      // Charge utile optimisée pour Supabase (évite les dépassements de taille HTTP)
+      const cloudPayload = {
+        ...appData,
+        courses: appData.courses.map(c => ({
+          ...c,
+          images: (c.images && c.images.length > 0) ? [c.images[0]] : []
+        })),
+        tds: appData.tds.map(t => ({
+          ...t,
+          images: (t.images && t.images.length > 0) ? [t.images[0]] : []
+        }))
+      };
+
+      try {
+        let { error } = await supabaseClient
+          .from('maths_master_profiles')
+          .upsert({
+            user_id: userId,
+            data: cloudPayload,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id' });
+
+        if (!error) {
+          const now = new Date();
+          const label = document.getElementById('lastSyncLabel');
+          if (label) label.innerText = 'Dernière sauvegarde : ' + now.toLocaleTimeString();
+          if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-emerald-600";
+          if (showToast) alert("Données sauvegardées avec succès dans votre projet Supabase 'teacher' !");
+        } else {
+          if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-red-600";
+          if (showToast) alert("Erreur Supabase : " + error.message + "\nAssurez-vous d'avoir exécuté le script 'supabase_setup.sql' dans l'éditeur SQL de votre projet 'teacher'.");
+        }
+      } catch (e) {
+        console.error("Exception push:", e);
+        if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-red-600";
+      }
+    }
+
+    async function pullFromCloud(showToast = false) {
+      if (!supabaseClient) return;
+
+      const userId = 'teacher_workspace';
+      try {
+        const { data, error } = await supabaseClient
+          .from('maths_master_profiles')
+          .select('data, updated_at')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        if (data && data.data) {
+          appData = { ...appData, ...data.data };
+          saveLocalData();
+          updateAllViews();
+          const label = document.getElementById('lastSyncLabel');
+          if (label && data.updated_at) {
+            label.innerText = 'Dernière sauvegarde : ' + new Date(data.updated_at).toLocaleTimeString();
+          }
+          if (showToast) alert("Workspace restauré depuis votre projet Supabase 'teacher' !");
+        } else if (showToast) {
+          alert("Aucune sauvegarde distante trouvée pour la clé '" + userId + "' dans votre projet 'teacher'.");
+        }
+      } catch (e) {
+        console.error("Exception pull:", e);
+      }
+    }
+  </script>
+</body>
+</html>

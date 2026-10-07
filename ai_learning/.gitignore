@@ -1,0 +1,22 @@
+# Fichiers sensibles & environnements
+.env
+.env.local
+.env.*.local
+
+# Dépendances et builds futurs
+node_modules/
+dist/
+build/
+.next/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+
+# Fichiers temporaires OS & Editeurs
+.DS_Store
+Thumbs.db
+*.log
