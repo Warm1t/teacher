@@ -41,16 +41,29 @@ L'application est découpée en **espaces clairs** :
 
 ## 3. Les Modules Détaillés
 
-### 💬 Module 1 : Le Chatbot Spécialisé d'Élite
-* **Le Tuteur Rigoureux** : Incarne le meilleur pédagogue d'école d'ingénieur (style Feynman / Strang).
+### 💬 Module 1 : Le Chatbot Spécialisé d'Élite & Les 2 Modes d'Entraînement
+* **Les 2 Modes de Travail Dédiés (Commutables en 1 Clic)** :
+  1. **📖 Mode Révision (Tuteur Pédagogique Pas-à-Pas)** :
+     - Conçu pour comprendre et assimiler les notions en profondeur.
+     - Décompose méthodiquement chaque étape de raisonnement et de calcul.
+     - Explique le sens géométrique et physique profond des formules.
+     - Explicite toutes les définitions, notations et hypothèses cardinales ($\mathcal{C}^1$, complétude, compacité, inversibilité).
+     - Rédige les démonstrations intégrales avec KaTeX ($...$ et $$...$$).
+  2. **⏱️ Mode Examen (Entraîneur Réflexes de Concours)** :
+     - Conçu pour développer l'autonomie et les réflexes d'ingénieur (situation d'écrits et d'oraux de concours Mines-Ponts/Centrale/X).
+     - **Règle absolue** : Ne donne JAMAIS la solution toute faite ni le calcul achevé.
+     - Alerte sur les 2 pièges classiques de candidats où les jurys sanctionnent la copie.
+     - Fournit une impulsion stratégique minimale (l'invariant, la symétrie, l'espace ambiant).
+     - Pose 2 questions socratiques ciblées et demande à l'étudiant de proposer sa première étape pour valider sa rigueur.
 * **Ancrage Strict sur le Cours de l'Élève** :
-  * Si aucun cours n'est chargé : Le chatbot invite l'élève à renseigner son premier cours ou TD, ou répond aux questions générales de méthode.
-  * Si un cours est sélectionné : Le chatbot utilise **exclusivement** les définitions, hypothèses et notations du cours actif pour corriger et guider.
-* **Rendu Mathématique $\LaTeX$ Instantané** : Formules propres intégrées avec KaTeX ($...$ et $$...$$).
-* **Actions Rapides de Travail** :
-  - `🎯 Corriger ma démarche` : Analyse chirurgicale de la copie de l'élève (justesse, rigueur des hypothèses, clarté).
-  - `💡 Indice sans solution` : Donne l'impulsion géométrique ou physique pour débloquer le calcul sans gâcher la recherche.
-  - `🔍 Point de méthode` : Rappelle la colonne vertébrale du théorème appliqué.
+  * Si aucun cours n'est chargé : Le chatbot s'appuie sur le socle des mathématiques supérieures générales.
+  * Si un polycopié ou chapitre est sélectionné : Le chatbot aligne rigoureusement ses réponses sur les notations et théorèmes du document actif.
+* **Connexion LLM Directe (Optionnelle)** :
+  * Compatible avec Google Gemini (Flash 1.5 / 2.0), OpenAI et Groq avec prompts système spécialisés selon le mode actif.
+  * Moteur pédagogique autonome d'élite intégré en l'absence de clé API (Physique quantique, Algèbre, Analyse, Probabilités).
+* **Actions Rapides Dynamiques** :
+  - En Mode Révision : `📖 Décomposition pas-à-pas`, `💡 Intuition géométrique & physique`, `📐 Démonstration détaillée`, `📑 Fiche de synthèse`.
+  - En Mode Examen : `⚡ Pièges classiques de concours`, `🎯 Réflexes de copie (Jury)`, `💡 Indice minimal de stratégie`, `⏱️ Question d'oral blanc`.
 
 ---
 

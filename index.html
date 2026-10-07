@@ -135,27 +135,49 @@
     <!-- ========================================================================= -->
     <section id="tab-chat" class="flex-1 flex flex-col bg-white border border-ink-200 rounded-xl shadow-sm overflow-hidden min-h-[700px]">
       
-      <!-- Barre d'Ancrage du Contexte (Cours / TD actif) -->
+      <!-- Barre d'Ancrage du Contexte & Mode Pédagogique -->
       <div class="bg-paper-100 border-b border-ink-200 px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+        
+        <!-- Gauche : Sélecteur de Mode (Révision vs Examen) -->
         <div class="flex items-center gap-2">
-          <span class="text-ink-500 font-medium">Contexte du Professeur :</span>
+          <span class="text-ink-500 font-medium">Mode Tuteur :</span>
+          <div class="inline-flex items-center bg-paper-200 p-0.5 rounded-lg border border-ink-200 text-xs">
+            <button type="button" id="chatModeBtn-revision" onclick="setChatMode('revision')" class="px-3 py-1 rounded-md bg-white text-ink-900 font-semibold shadow-xs transition flex items-center gap-1.5 border border-ink-200">
+              <span>📖</span> Mode Révision <span class="hidden sm:inline text-[10px] text-ink-500 font-normal">(Guide pas-à-pas)</span>
+            </button>
+            <button type="button" id="chatModeBtn-examen" onclick="setChatMode('examen')" class="px-3 py-1 rounded-md text-ink-600 hover:text-ink-900 font-medium transition flex items-center gap-1.5">
+              <span>⏱️</span> Mode Examen <span class="hidden sm:inline text-[10px] text-ink-500 font-normal">(Réflexes & Concours)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Droite : Contexte de cours rattaché -->
+        <div class="flex items-center gap-2 flex-wrap">
           <div id="activeContextBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-ink-200 bg-white text-ink-700">
             <span class="text-ink-400">ℹ️</span>
             <span id="activeContextText">Aucun cours chargé (Raisonnement général)</span>
           </div>
-        </div>
 
-        <div class="flex items-center gap-2">
           <select id="contextSelector" onchange="changeActiveContext(this.value)" class="text-xs bg-white border border-ink-200 rounded px-2.5 py-1 text-ink-800 focus:outline-none focus:border-ink-800">
             <option value="none">Sélectionner un cours comme référence...</option>
           </select>
           <button onclick="clearContext()" id="clearContextBtn" class="hidden text-ink-500 hover:text-ink-900 text-xs px-2 py-1">
             Détacher
           </button>
-          <button onclick="clearChatHistory()" class="text-ink-400 hover:text-ink-700 text-xs px-2 py-1 ml-2 border-l border-ink-200">
-            Effacer la conversation
+          <button onclick="clearChatHistory()" class="text-ink-400 hover:text-ink-700 text-xs px-2 py-1 ml-1 border-l border-ink-200">
+            Effacer
           </button>
         </div>
+
+      </div>
+
+      <!-- Bandeau explicatif du mode actif -->
+      <div id="chatModeBanner" class="px-5 py-2 bg-paper-50 border-b border-ink-100 flex items-center justify-between text-xs text-ink-600">
+        <div class="flex items-center gap-2">
+          <span id="chatModeIcon" class="text-sm">📖</span>
+          <span id="chatModeDescription"><strong>Mode Révision actif</strong> : Le professeur explique en profondeur chaque point, démontre les formules et explicite les hypothèses.</span>
+        </div>
+        <span class="text-[11px] font-mono text-ink-400 hidden md:inline">Basculez en Mode Examen pour tester vos réflexes</span>
       </div>
 
       <!-- Zone de Discussion (Messages) -->
@@ -166,39 +188,22 @@
             P
           </div>
           <div class="bg-white border border-ink-200 p-4 rounded-lg shadow-sm text-sm text-ink-800 leading-relaxed space-y-2">
-            <p class="font-semibold text-ink-900 font-serif">Bienvenue dans votre atelier de mathématiques.</p>
+            <p class="font-semibold text-ink-900 font-serif">Bienvenue dans votre cockpit de mathématiques.</p>
             <p id="chatWelcomeNote" class="text-ink-600 text-xs leading-relaxed">
-              Votre espace de travail est actuellement <strong>vierge</strong>. Vous n'avez encore chargé aucun cours ni TD.<br>
-              Pour que je puisse vous guider et corriger vos démarches avec les notations et théorèmes exacts de votre cursus, ajoutez votre premier chapitre dans l'onglet <strong>📚 Dossiers de Cours</strong> ou vos exercices dans <strong>📝 Dossiers de TD</strong>.
+              Deux modes d'entraînement sont à votre disposition :<br>
+              • <strong>📖 Mode Révision</strong> : Je décompose chaque étape, j'explique le sens physique/géométrique des formules et je résous pas-à-pas.<br>
+              • <strong>⏱️ Mode Examen</strong> : Zéro solution cuite ! J'adopte l'attitude d'un jury de concours (Mines/Centrale/X) : je traque vos pièges, teste vos réflexes et vous donne uniquement des impulsions stratégiques.
             </p>
             <p class="text-ink-500 text-xs pt-1 border-t border-ink-100">
-              Vous pouvez néanmoins me poser dès maintenant n'importe quelle question théorique, ou me coller un exercice à résoudre étape par étape.
+              Posez une question, collez un exercice, ou joignez un polycopié PDF pour démarrer.
             </p>
           </div>
         </div>
       </div>
 
-      <!-- Barre d'Actions Rapides -->
-      <div class="px-5 py-2 bg-paper-100 border-t border-ink-200 flex flex-wrap items-center gap-2 text-xs">
-        <span class="text-ink-500 font-medium mr-1">Actions :</span>
-        <button onclick="triggerPdfImport('chat')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-900 text-ink-900 font-medium transition flex items-center gap-1 shadow-xs">
-          📄 Joindre un PDF (Cours ou TD)
-        </button>
-        <button onclick="quickAction('corriger')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
-          🎯 Corriger ma démarche
-        </button>
-        <button onclick="quickAction('indice')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
-          💡 Demander un indice sans solution
-        </button>
-        <button onclick="quickAction('methode')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
-          📐 Rappel de méthode
-        </button>
-        <button onclick="quickAction('fiche')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
-          📑 Fiche Méthode & Exo-Type
-        </button>
-        <button onclick="quickAction('preuve')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
-          🔍 Moelle de la démonstration
-        </button>
+      <!-- Barre d'Actions Rapides Dynamique -->
+      <div id="chatQuickActions" class="px-5 py-2 bg-paper-100 border-t border-ink-200 flex flex-wrap items-center gap-2 text-xs">
+        <!-- Rendu dynamique par JS selon le mode Révision / Examen -->
       </div>
 
       <!-- Zone de Saisie du Message -->
@@ -744,6 +749,7 @@
       fiches: [],  // Fiches de synthèse et exercices-types
       revisions: [],// Programmes de révision
       activeCourseId: null,
+      chatMode: 'revision', // 'revision' | 'examen'
       messages: [] // Historique de conversation avec le prof
     };
 
@@ -865,6 +871,7 @@
 
       // 4. Mettre à jour les vues
       updateAllViews();
+      updateChatModeUI();
     });
 
     // --- GESTION DES ONGLETS ---
@@ -1831,44 +1838,163 @@ Démontrer la convergence ou l'existence de la solution unique, puis établir l'
       }
     }
 
-    function handleSendMessage(e) {
+    // --- MODES PÉDAGOGIQUES DU CHATBOT (RÉVISION VS EXAMEN) ---
+    function setChatMode(mode) {
+      appData.chatMode = mode;
+      saveLocalData();
+      updateChatModeUI();
+      
+      if (mode === 'revision') {
+        addSystemMessage("📖 **Mode Révision activé** : Le professeur décompose chaque étape, démontre les formules et vous guide avec une pédagogie exhaustive.");
+      } else {
+        addSystemMessage("⏱️ **Mode Examen activé** : Le professeur adopte l'attitude d'un jury de concours (Mines/Centrale/X). Zéro solution toute faite : il teste vos réflexes, traque vos pièges et oriente votre stratégie.");
+      }
+    }
+
+    function updateChatModeUI() {
+      const mode = appData.chatMode || 'revision';
+      const btnRev = document.getElementById('chatModeBtn-revision');
+      const btnExam = document.getElementById('chatModeBtn-examen');
+      const iconEl = document.getElementById('chatModeIcon');
+      const descEl = document.getElementById('chatModeDescription');
+
+      if (btnRev && btnExam) {
+        if (mode === 'revision') {
+          btnRev.className = "px-3 py-1 rounded-md bg-white text-ink-900 font-semibold shadow-xs transition flex items-center gap-1.5 border border-ink-200";
+          btnExam.className = "px-3 py-1 rounded-md text-ink-600 hover:text-ink-900 font-medium transition flex items-center gap-1.5";
+          if (iconEl) iconEl.innerText = "📖";
+          if (descEl) descEl.innerHTML = "<strong>Mode Révision actif</strong> : Le professeur explique en profondeur chaque point, démontre les formules et explicite les hypothèses.";
+        } else {
+          btnRev.className = "px-3 py-1 rounded-md text-ink-600 hover:text-ink-900 font-medium transition flex items-center gap-1.5";
+          btnExam.className = "px-3 py-1 rounded-md bg-ink-900 text-white font-semibold shadow-xs transition flex items-center gap-1.5";
+          if (iconEl) iconEl.innerText = "⏱️";
+          if (descEl) descEl.innerHTML = "<strong>Mode Examen actif</strong> : Entraîneur de concours. Indices minimaux, réflexes de copie, pièges classiques et questions socratiques sans solution cuite.";
+        }
+      }
+
+      renderQuickActionsForMode(mode);
+    }
+
+    function renderQuickActionsForMode(mode) {
+      const container = document.getElementById('chatQuickActions');
+      if (!container) return;
+
+      if (mode === 'revision') {
+        container.innerHTML = `
+          <span class="text-ink-500 font-medium mr-1">Outils Révision :</span>
+          <button type="button" onclick="triggerPdfImport('chat')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-900 text-ink-900 font-medium transition flex items-center gap-1 shadow-xs">
+            📄 Joindre un PDF
+          </button>
+          <button type="button" onclick="quickAction('pas_a_pas')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+            📖 Décomposition pas-à-pas
+          </button>
+          <button type="button" onclick="quickAction('intuition')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+            💡 Intuition géométrique & physique
+          </button>
+          <button type="button" onclick="quickAction('demonstration')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+            📐 Démonstration détaillée
+          </button>
+          <button type="button" onclick="quickAction('fiche')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+            📑 Fiche de synthèse du cours
+          </button>
+        `;
+      } else {
+        container.innerHTML = `
+          <span class="text-ink-500 font-medium mr-1">Outils Examen :</span>
+          <button type="button" onclick="triggerPdfImport('chat')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-900 text-ink-900 font-medium transition flex items-center gap-1 shadow-xs">
+            📄 Joindre un PDF
+          </button>
+          <button type="button" onclick="quickAction('pieges')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+            ⚡ Pièges classiques de concours
+          </button>
+          <button type="button" onclick="quickAction('reflexes')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+            🎯 Réflexes de copie (Jury)
+          </button>
+          <button type="button" onclick="quickAction('indice_min')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+            💡 Indice minimal de stratégie
+          </button>
+          <button type="button" onclick="quickAction('oral_blanc')" class="px-2.5 py-1 rounded bg-white hover:bg-paper-200 border border-ink-200 text-ink-700 transition">
+            ⏱️ Question d'oral blanc
+          </button>
+        `;
+      }
+    }
+
+    function showThinkingIndicator() {
+      const container = document.getElementById('chatMessages');
+      const id = 'thinking_' + Date.now();
+      const div = document.createElement('div');
+      div.id = id;
+      div.className = 'flex items-start gap-4 max-w-3xl';
+      div.innerHTML = `
+        <div class="w-8 h-8 rounded border border-ink-900 bg-ink-900 text-white flex items-center justify-center text-xs font-serif font-bold shrink-0">
+          P
+        </div>
+        <div class="p-3.5 rounded-lg bg-white border border-ink-200 text-ink-600 text-xs flex items-center gap-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-ink-900 animate-ping"></span>
+          <span>Le professeur analyse votre problème et prépare ses explications...</span>
+        </div>
+      `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      return id;
+    }
+
+    function removeThinkingIndicator(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    async function handleSendMessage(e) {
       e.preventDefault();
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
       if (!text) return;
 
-      // Ajouter le message utilisateur
       appendChatMessage('user', text);
       input.value = '';
 
-      // Générer la réponse du professeur d'élite
-      setTimeout(() => {
-        generateProfessorResponse(text);
-      }, 500);
+      const thinkingId = showThinkingIndicator();
+      try {
+        await generateProfessorResponse(text);
+      } finally {
+        removeThinkingIndicator(thinkingId);
+      }
     }
 
     function quickAction(type) {
       const input = document.getElementById('chatInput');
       const active = getActiveCourse();
+      const courseName = active ? `« ${active.title} »` : "ce chapitre";
 
-      if (type === 'corriger') {
-        input.value = "🎯 Corrige ma démarche pour l'exercice suivant :\n\n[Collez votre exercice et vos calculs ici]";
-      } else if (type === 'indice') {
-        input.value = "💡 Donne-moi uniquement une intuition géométrique ou physique pour débuter, sans me donner la solution directe.";
-      } else if (type === 'methode') {
-        if (active) {
-          input.value = `📐 Quel est le théorème central et la méthode clé du cours « ${active.title} » ?`;
-        } else {
-          input.value = "📐 Rappelle-moi la méthode de résolution standard pour ce type de problème.";
-        }
+      if (type === 'pas_a_pas') {
+        input.value = `📖 Professeur, pourrais-tu m'expliquer pas-à-pas et en détail la résolution du problème suivant (sans sauter aucune étape de calcul ni de justification) :\n\n[Collez votre exercice ou votre question ici]`;
+      } else if (type === 'intuition') {
+        input.value = `💡 Quelle est l'intuition géométrique ou physique fondamentale derrière les notions de ${courseName} ? Pourquoi cette définition ou cette formule a-t-elle été posée ainsi ?`;
+      } else if (type === 'demonstration') {
+        input.value = `📐 Quelle est la démonstration complète et rigoureuse du théorème central de ${courseName} ? Explique chaque lemme et chaque passage critique.`;
       } else if (type === 'fiche') {
         if (active) {
           input.value = `📑 Professeur, génère-moi la fiche de méthode et l'exercice-type canonique pour le cours « ${active.title} » (avec la solution rédigée et les réflexes d'examen).`;
         } else {
           input.value = "📑 Professeur, propose-moi un exercice-type classique d'école d'ingénieur avec sa correction détaillée et la méthode associée.";
         }
+      } else if (type === 'pieges') {
+        input.value = `⚡ Quels sont les 3 pièges mortels dans lesquels tombent 90% des candidats de concours sur ${courseName} ? Comment le jury sanctionne-t-il ces erreurs ?`;
+      } else if (type === 'reflexes') {
+        input.value = `🎯 Quels sont les réflexes immédiats à avoir dès qu'on voit un sujet sur ${courseName} ? Quelles hypothèses doit-on poser en tout premier sur sa copie ?`;
+      } else if (type === 'indice_min') {
+        input.value = `💡 Ne me donne PAS la solution ! Donne-moi uniquement une piste stratégique minimale pour débloquer ma réflexion sur cet exercice :\n\n[Collez l'énoncé de votre exercice ici]`;
+      } else if (type === 'oral_blanc') {
+        input.value = `⏱️ Pose-moi une colle d'oral blanc de niveau Mines-Ponts / Centrale sur ${courseName}. Interroge-moi sur les points de cours et teste ma réactivité !`;
+      } else if (type === 'corriger') {
+        input.value = `🎯 Corrige ma démarche pour l'exercice suivant avec la rigueur d'un jury de concours :\n\n[Collez votre exercice et vos calculs ici]`;
+      } else if (type === 'indice') {
+        input.value = `💡 Donne-moi uniquement une intuition pour débuter, sans me donner la solution directe.`;
+      } else if (type === 'methode') {
+        input.value = `📐 Rappelle-moi la méthode de résolution standard pour ce type de problème sur ${courseName}.`;
       } else if (type === 'preuve') {
-        input.value = "🔍 Quelle est la moelle épinière de la démonstration ? Quels sont les 2 pivots logiques à retenir ?";
+        input.value = `🔍 Quelle est la moelle épinière de la démonstration ? Quels sont les 2 pivots logiques à retenir ?`;
       }
       input.focus();
     }
@@ -1982,18 +2108,23 @@ Démontrer la convergence ou l'existence de la solution unique, puis établir l'
     async function generateProfessorResponseForImage(docTitle, pageNum, pageImage) {
       const apiKey = localStorage.getItem('maths_master_api_key') || '';
       const apiProvider = localStorage.getItem('maths_master_api_provider') || 'gemini';
+      const mode = appData.chatMode || 'revision';
 
       if (apiKey && apiProvider === 'gemini') {
         try {
           addSystemMessage("Analyse visuelle de la page par Gemini Vision en cours...");
           const base64Data = pageImage.replace(/^data:image\/(png|jpeg);base64,/, '');
+          const instruction = mode === 'revision'
+            ? `Tu es le plus grand professeur de mathématiques d'école d'ingénieur. Tu es en MODE RÉVISION. Analyse la page ${pageNum} du document « ${docTitle} ». Identifie et explique chaque théorème, notation ou formule KaTeX ($...$ et $$...$$). Décompose pas-à-pas le raisonnement avec une pédagogie bienveillante et exhaustive.`
+            : `Tu es un jury de concours d'ingénieur (Mines-Ponts/Centrale/X). Tu es en MODE EXAMEN. Analyse la page ${pageNum} du document « ${docTitle} ». RÈGLE : Ne donne JAMAIS la solution toute faite aux exercices ! Indique les 2 pièges mortels de cette page, fournis un indice stratégique minimal et pose 2 questions de réflexe de copie.`;
+
           const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               contents: [{
                 parts: [
-                  { text: `Tu es le meilleur professeur de mathématiques d'école d'ingénieur. Analyse cette page ${pageNum} du document « ${docTitle} ». Identifie les définitions, théorèmes ou énoncés présents sur cette image avec rigueur et clarté. Guide l'étudiant avec méthode.` },
+                  { text: instruction },
                   { inlineData: { mimeType: 'image/jpeg', data: base64Data } }
                 ]
               }]
@@ -2009,17 +2140,25 @@ Démontrer la convergence ou l'existence de la solution unique, puis établir l'
         }
       }
 
-      // Moteur d'analyse pédagogique autonome
-      const response = `**Analyse visuelle de la Page ${pageNum} du document « *${docTitle}* » :**\n\n` +
-        `J'ai sous les yeux l'image exacte de cette page avec l'intégralité de sa typographie, ses intégrales, matrices et schémas d'origine.\n\n` +
-        `1. **Structure de la page** :\n` +
-        `   - Identifiez si votre question porte sur un énoncé théorique (théorème, lemme, propriété) ou sur un exercice d'application.\n` +
-        `   - Vérifiez au préalable les hypothèses critiques (dimension de l'espace, régularité $\\mathcal{C}^1$, complétude, compacité).\n\n` +
-        `2. **Méthode d'ingénieur recommandée** :\n` +
-        `   - Ne vous jetez pas sur le calcul brut.\n` +
-        `   - Isolez la question précise : s'agit-il d'une réduction d'endomorphisme, d'un calcul d'intégrale à paramètre, d'une convergence d'EDO ou d'une loi de probabilité ?\n\n` +
-        `3. **Prochaine étape** :\n` +
-        `   Indiquez-moi le **numéro de l'exercice** ou la **formule exacte** de cette page sur laquelle vous souhaitez qu'on avance ensemble !`;
+      // Moteur d'analyse pédagogique autonome selon le mode
+      let response = "";
+      if (mode === 'revision') {
+        response = `**📖 Mode Révision : Analyse Visuelle de la Page ${pageNum} (« *${docTitle}* »)**\n\n` +
+          `J'ai sous les yeux l'image exacte de cette page avec sa typographie, ses intégrales, matrices et schémas d'origine.\n\n` +
+          `### 💡 1. Cadrage du Chapitre\n` +
+          `- Identifiez les objets fondamentaux visibles : espaces vectoriels/hermitiens, endomorphismes, intégrales ou équations différentielles.\n` +
+          `- Notez chaque condition de validité : les espaces sont-ils de dimension finie ? Les fonctions sont-elles de carré intégrable $L^2$ ?\n\n` +
+          `### ✍️ 2. Décomposition Pédagogique\n` +
+          `Indiquez-moi le numéro de l'exercice ou la formule précise de cette page que vous souhaitez détailler pas-à-pas, et je vous expliquerai chaque étape de calcul !`;
+      } else {
+        response = `**⏱️ Mode Examen : Diagnostic Concours de la Page ${pageNum} (« *${docTitle}* »)**\n\n` +
+          `> 🛑 **Posture Jury** : Je ne résoudrai pas les exercices de cette page à votre place.\n\n` +
+          `### ⚡ Pièges Classiques Détectés sur cette Page :\n` +
+          `1. Se jeter sur les calculs sans avoir posé les hypothèses d'inversibilité ou d'orthogonalité.\n` +
+          `2. Oublier de vérifier si les opérateurs sont autoadjoints avant d'énoncer que le spectre est réel.\n\n` +
+          `### 🎯 Réflexe Immédiat :\n` +
+          `Quel exercice de cette page abordez-vous ? **Écrivez votre première idée de stratégie ci-dessous**, je corrigerai votre rigueur d'ingénieur.`;
+      }
 
       appendChatMessage('professor', response);
     }
@@ -2041,76 +2180,390 @@ Démontrer la convergence ou l'existence de la solution unique, puis établir l'
       }
     }
 
-    // --- MOTEUR DE RÉPONSE DU PROFESSEUR D'ÉLITE ---
-    function generateProfessorResponse(userQuery) {
-      const active = getActiveCourse();
-      let response = "";
+    // --- MOTEUR D'INTELLIGENCE DU PROFESSEUR D'ÉLITE (MODES RÉVISION & EXAMEN) ---
+    function detectMathTopic(text, course) {
+      const combined = ((course ? (course.subject + ' ' + course.title + ' ' + (course.body || '')) : '') + ' ' + text).toLowerCase();
+      
+      if (combined.includes('quantique') || combined.includes('hamilton') || combined.includes('hermit') || combined.includes('schrodinger') || combined.includes('schrödinger') || combined.includes('bra') || combined.includes('ket') || combined.includes('commutateur') || combined.includes('pauli') || combined.includes('observable') || combined.includes('dirac')) {
+        return 'quantique';
+      }
+      if (combined.includes('alg') || combined.includes('matrice') || combined.includes('diagonal') || combined.includes('vecteur') || combined.includes('spectral') || combined.includes('noyau') || combined.includes('valeur propre') || combined.includes('endomorph') || combined.includes('jordan')) {
+        return 'algebre';
+      }
+      if (combined.includes('analys') || combined.includes('diff') || combined.includes('intégr') || combined.includes('lebesgue') || combined.includes('fourier') || combined.includes('série') || combined.includes('edo') || combined.includes('convergence') || combined.includes('cauchy')) {
+        return 'analyse';
+      }
+      if (combined.includes('prob') || combined.includes('stat') || combined.includes('markov') || combined.includes('densité') || combined.includes('espérance') || combined.includes('tcl') || combined.includes('gauss')) {
+        return 'proba';
+      }
+      return 'general';
+    }
 
-      const lower = userQuery.toLowerCase();
+    function buildSystemPrompt(mode, active) {
+      let base = "Tu es le plus grand professeur de mathématiques supérieures de l'histoire pour élèves ingénieurs (niveau CPGE MP*/PSI*, Grandes Écoles d'Ingénieurs, Polytechnique, Mines, Centrale).\n";
+      base += "Tu maîtrises l'intégralité du programme d'ingénieur : Algèbre linéaire et bilinéaire, Analyse réelle et complexe, Topologie, EDO, Traitement du signal, Mécanique quantique et Probabilités.\n";
+      base += "Tu rédiges avec une clarté typographique absolue en utilisant KaTeX : utilise $...$ pour les mathématiques en ligne et $$...$$ pour les équations centrées en bloc.\n\n";
 
       if (active) {
-        if (lower.includes('fiche') || lower.includes('exo') || lower.includes('exercice-type') || lower.includes('canonique') || lower.includes('modèle')) {
-          const safeTitle = active.title.replace(/'/g, "\\'");
-          const safeSubject = active.subject.replace(/'/g, "\\'");
-          response = `**📑 Fiche Méthode & Exercice-Type Canonique : *${active.title}***\n\n` +
-            `Voici l'exercice étalon incontournable pour ce polycopié, rédigé et corrigé selon les standards d'exigence des concours d'ingénieur :\n\n` +
-            `---\n\n` +
-            `### 🎯 1. Énoncé du Problème Type\n` +
-            `Soit $E = \\mathbb{R}_n[X]$. On considère l'application $u : P \\mapsto (X^2 - 1)P'' + (2X + 1)P'$.\n` +
-            `1. Justifier avec soin que $u$ stabilise $E$.\n` +
-            `2. Déterminer la matrice de $u$ dans la base canonique et en déduire l'intégralité de son spectre $\\text{Sp}(u)$.\n` +
-            `3. Conclure quant à la diagonalisabilité de $u$.\n\n` +
-            `---\n\n` +
-            `### ✍️ 2. Résolution Guidée & Rigueur Mathématique\n` +
-            `- **Stabilité** : Pour tout polynôme de degré $k \\le n$, le terme $(X^2-1)P''$ a un degré $\\le k$ et $(2X+1)P'$ a un degré $\\le k$. Donc $\\deg(u(P)) \\le \\deg(P) \\le n$. Ainsi $u \\in \\mathcal{L}(E)$.\n` +
-            `- **Caractère Triangulaire** : Le coefficient dominant de $u(X^k)$ est $k(k-1) + 2k = k(k+1)$. La matrice de $u$ est donc **triangulaire supérieure** dans la base canonique ordonnée $(1, X, \\dots, X^n)$.\n` +
-            `- **Spectre** : Les valeurs propres sont les éléments diagonaux : $\\lambda_k = k(k+1)$ pour $k \\in \\{0, 1, \\dots, n\\}$. Comme la fonction $k \\mapsto k(k+1)$ est strictement croissante sur $\\mathbb{N}$, les $n+1$ valeurs propres sont deux à deux distinctes.\n` +
-            `- **Verdict** : $u$ possède $\\dim(E) = n+1$ valeurs propres distinctes, donc **$u$ est diagonalisable**.\n\n` +
-            `---\n\n` +
-            `### ⚡ 3. Réflexes de Copie & Pièges à Éviter\n` +
-            `- Inutile d'expliciter chaque coefficient sous-diagonal : le caractère triangulaire et la stricte séparation des éléments diagonaux suffisent à conclure sans calcul lourd !\n\n` +
-            `<button onclick="saveChatAsExoType('Endomorphisme polynomial : ${safeTitle}', '${safeSubject}', 'Énoncé : Soit u(P) = (X^2-1)P\'\' + (2X+1)P\'. Montrer que u est diagonalisable.\\n\\nRésolution : Matrice triangulaire supérieure. Valeurs propres distinctes lambda_k = k(k+1). n+1 vp distinctes donc diagonalisable.', 'Vérifier la stricte croissance pour certifier que les valeurs propres sont distinctes.')" class="mt-2 px-3 py-1.5 bg-ink-900 text-white rounded text-xs font-medium hover:bg-ink-800 transition">💾 Enregistrer cet Exercice dans mes Fiches & Exos-Types</button>`;
-        } else if (lower.includes('corrige') || lower.includes('démarche') || lower.includes('calcul')) {
-          response = `**Analyse adossée à votre cours : *${active.title}***\n\n` +
-            `Examinons votre démarche avec la rigueur attendue en école d'ingénieur :\n\n` +
-            `1. **Hypothèse et Espace de départ** : Avez-vous explicitement posé les dimensions et la nature des espaces vectoriels en jeu ? En vertu de votre cours, toute manipulation suppose de vérifier la régularité ou l'inversibilité au préalable.\n\n` +
-            `2. **Lien avec la théorie de votre polycopié** :\n> *« ${active.body.substring(0, 160)}... »*\n\n` +
-            `3. **Verdict de méthode** : Le calcul est cohérent, mais veillez à ne jamais sauter l'étape de justification de passage à la limite ou d'orthogonalité. La clarté de la copie fait la différence entre un candidat moyen et un major de promo.`;
-        } else if (lower.includes('indice') || lower.includes('commencer') || lower.includes('débuter')) {
-          response = `**Analyse adossée à votre cours : *${active.title}***\n\n` +
-            `**L'impulsion géométrique :**\n` +
-            `Ne vous jetez pas sur le calcul brut. Regardez ce que cet opérateur fait dans l'espace :\n\n` +
-            `- Quelle est la direction invariante ?\n` +
-            `- Les volumes sont-ils conservés ou dilatés ?\n\n` +
-            `Dans votre cours, appliquez le théorème clé : isolez le terme dominant avant de poser le système.`;
-        } else {
-          response = `**Analyse adossée à votre cours : *${active.title}***\n\n` +
-            `Pour répondre à votre question en restant parfaitement aligné sur votre cours :\n\n` +
-            `La clé réside dans la propriété suivante extraite de votre fiche :\n` +
-            `$$\\text{Référence : } ${active.title}$$\n\n` +
-            `Appliquez ce résultat aux données de votre problème et vérifiez la cohérence dimensionnelle du résultat.`;
+        base += `RÉFÉRENCE DE COURS ACTIVE : L'étudiant travaille actuellement sur le polycopié « ${active.title} » (${active.subject}).\n`;
+        if (active.body && active.body.length > 5) {
+          base += `Contenu extrait du polycopié de l'étudiant :\n"""\n${active.body.substring(0, 1500)}\n"""\n`;
         }
-      } else {
-        if (lower.includes('fiche') || lower.includes('exo') || lower.includes('exercice-type') || lower.includes('canonique') || lower.includes('modèle')) {
-          response = `**📑 Exercice-Type Canonique Modèle (Mathématiques Générales d'Ingénieur)** :\n\n` +
-            `Voici un problème classique portant sur l'inversion et la réduction matricielle via polynôme annulateur :\n\n` +
-            `### 🎯 Énoncé Modèle\n` +
-            `Soit $A \\in \\mathcal{M}_n(\\mathbb{R})$ telle que $A^3 = A + I_n$. Montrer que $\\det(A) > 0$ et que $\\text{Tr}(A) > 0$.\n\n` +
-            `### ✍️ Résolution d'Élite\n` +
-            `1. **Polynôme Annulateur** : Soit $P(X) = X^3 - X - 1$. Par hypothèse, $P(A) = 0$. Les valeurs propres complexes de $A$ sont racines de $P$.\n` +
-            `2. **Étude de $P$** : $P'(X) = 3X^2 - 1$. $P$ admet une unique racine réelle $\\lambda_0 \\in ]1, 2[$, et deux racines complexes conjuguées $z_1, \\bar{z}_1$ avec $|z_1|^2 > 0$.\n` +
-            `3. **Déterminant & Trace** : Le produit des racines est positif, donc $\\det(A) > 0$. De même $\\text{Tr}(A) = \\sum \\lambda_i > 0$.\n\n` +
-            `⚡ **Réflexe d'examen** : Toujours coupler l'étude analytique du polynôme annulateur avec les invariants $(\\det, \\text{Tr})$.\n\n` +
-            `<button onclick="saveChatAsExoType('Polynômes Annulateurs & Spectre', 'Algèbre Linéaire', 'Soit A^3 = A + I_n. Montrer que det(A) > 0 et Tr(A) > 0.\\n\\nRésolution : Étude des racines de P(X) = X^3 - X - 1. Une racine réelle strictement positive et deux complexes conjuguées.', 'Étudier la fonction P(X) et ses extremums avant d\\'en déduire les signes du spectre.')" class="mt-2 px-3 py-1.5 bg-ink-900 text-white rounded text-xs font-medium hover:bg-ink-800 transition">💾 Enregistrer cet Exercice dans mes Fiches & Exos-Types</button>`;
-        } else {
-          response = `**Conseil méthodologique (Aucun cours spécifique attaché)** :\n\n` +
-            `Pour traiter ce problème d'ingénierie :\n\n` +
-            `1. **Visualisation spatiale** : Traduisez chaque équation sous forme de transformation ou de flux géométrique.\n` +
-            `2. **Rigueur du raisonnement** : Formulez la chaîne d'implications logiques sans supposer implicitement ce qu'il s'agit de démontrer.\n\n` +
-            `*(Conseil : Pour que j'adapte mes calculs exactement aux théorèmes de votre école, chargez votre polycopié dans l'onglet **📚 Dossiers de Cours**)*.`;
-        }
+        base += "Aligne impérativement tes notations, théorèmes et définitions sur ce document.\n\n";
       }
 
+      if (mode === 'revision') {
+        base += "=== MODE ACTIF : MODE RÉVISION (GUIDE PÉDAGOGIQUE PAS-À-PAS) ===\n";
+        base += "Ton rôle : Faire COMPRENDRE et ASSIMILER chaque concept en profondeur.\n";
+        base += "DIRECTIVES PÉDAGOGIQUES OBLIGATOIRES :\n";
+        base += "1. Décompose méthodiquement la question de l'étudiant en étapes claires et rigoureuses.\n";
+        base += "2. Explique le sens géométrique ou physique fondamental derrière chaque formule.\n";
+        base += "3. Précise toutes les hypothèses nécessaires (dimension finie/infinie, régularité C^1, complétude, compacité, inversibilité).\n";
+        base += "4. Fournis les calculs intermédiaires complets sans jamais sauter d'étape.\n";
+        base += "5. Termine par une synthèse du pivot théorique à mémoriser.\n";
+      } else {
+        base += "=== MODE ACTIF : MODE EXAMEN / CONCOURS (ENTRAÎNEUR RÉFLEXES) ===\n";
+        base += "Ton rôle : Tu es un examinateur exigeant de concours d'école d'ingénieur (Mines-Ponts, CentraleSupélec, X/ENS).\n";
+        base += "DIRECTIVES ABSOLUES :\n";
+        base += "1. RÈGLE STRICTE : Ne donne JAMAIS la solution toute faite ni le résultat final calculé !\n";
+        base += "2. Donne un minimum d'indices : oriente seulement la vision stratégique (l'invariant, la symétrie, l'espace ambiant).\n";
+        base += "3. Souligne immédiatement les pièges classiques de copie où les candidats perdent leurs points.\n";
+        base += "4. Pose 1 ou 2 questions socratiques tranchantes pour forcer l'étudiant à poser lui-même la première ligne.\n";
+        base += "5. Demande à l'étudiant de proposer son étape suivante et sanctionne toute imprécision de rigueur.\n";
+      }
+
+      return base;
+    }
+
+    async function callLlmApi(prompt, systemInstruction) {
+      const apiKey = localStorage.getItem('maths_master_api_key') || '';
+      const apiProvider = localStorage.getItem('maths_master_api_provider') || 'gemini';
+
+      if (!apiKey) return null;
+
+      try {
+        if (apiProvider === 'gemini') {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+          const payload = {
+            systemInstruction: {
+              parts: [{ text: systemInstruction }]
+            },
+            contents: [{
+              parts: [{ text: prompt }]
+            }]
+          };
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const json = await res.json();
+          if (json.candidates && json.candidates[0]?.content?.parts[0]?.text) {
+            return json.candidates[0].content.parts[0].text;
+          }
+        } else if (apiProvider === 'openai' || apiProvider === 'groq') {
+          const endpoint = apiProvider === 'groq' 
+            ? 'https://api.groq.com/openai/v1/chat/completions' 
+            : 'https://api.openai.com/v1/chat/completions';
+          const model = apiProvider === 'groq' ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini';
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [
+                { role: 'system', content: systemInstruction },
+                { role: 'user', content: prompt }
+              ]
+            })
+          });
+          const json = await res.json();
+          if (json.choices && json.choices[0]?.message?.content) {
+            return json.choices[0].message.content;
+          }
+        }
+      } catch(e) {
+        console.warn("Exception appel API LLM:", e);
+      }
+      return null;
+    }
+
+    function generateRevisionResponse(userQuery, topic, courseTitle, active) {
+      let res = `**📖 Mode Révision : Analyse Approfondie & Déroulé Pas-à-Pas**\n`;
+      if (active) res += `*Adossé à votre cours : « ${courseTitle} »*\n\n`;
+      else res += `*Discipline : ${topic.toUpperCase()} (Niveau École d'Ingénieur)*\n\n`;
+
+      if (topic === 'quantique') {
+        res += `### 💡 1. Intuition Physique & Fondements
+En mécanique quantique, un état n'est pas décrit par une position et une impulsion $(x, p)$ comme en mécanique newtonienne, mais par un ket $|\\psi\\rangle$ vivant dans un **espace de Hilbert complexe séparable** $\\mathcal{H}$ muni d'un produit scalaire hermitien $\\langle \\phi | \\psi \\rangle$.
+Toute grandeur mesurable est une **observable** représentée par un opérateur linéaire **autoadjoint** $\\hat{A} = \\hat{A}^\\dagger$, dont le spectre $\\text{Sp}(\\hat{A})$ est obligatoirement **réel** (valeurs propres $a_n \\in \\mathbb{R}$).
+
+---
+
+### 📐 2. Théorèmes & Définitions Cardinales
+- **Postulat de Réduction du Paquet d'Onde** :
+  Si le système est dans l'état $|\\psi\\rangle$ et que les vecteurs propres orthonormés de $\\hat{A}$ sont $|u_n\\rangle$ (avec $\\hat{A}|u_n\\rangle = a_n |u_n\\rangle$) :
+  $$|\\psi\\rangle = \\sum_n c_n |u_n\\rangle \\quad \\text{avec} \\quad c_n = \\langle u_n | \\psi \\rangle$$
+  La probabilité de mesurer la valeur propre $a_n$ vaut :
+  $$\\mathbb{P}(a_n) = |c_n|^2 = |\\langle u_n | \\psi \\rangle|^2$$
+  avec la condition de normalisation $\\sum_n |c_n|^2 = 1$.
+
+- **Évolution Temporelle (Équation de Schrödinger)** :
+  $$i\\hbar \\frac{d}{dt}|\\psi(t)\\rangle = \\hat{H}|\\psi(t)\\rangle$$
+  où $\\hat{H}$ est l'opérateur Hamiltonien de l'énergie. Pour un Hamiltonien indépendant du temps, la solution générale s'exprime par le propagateur unitaire :
+  $$|\\psi(t)\\rangle = \\sum_n c_n(0) e^{-i E_n t / \\hbar} |u_n\\rangle$$
+
+- **Relation de Fermeture (Complétude)** :
+  $$\\sum_n |u_n\\rangle\\langle u_n| = \\mathbb{I}$$
+
+---
+
+### ✍️ 3. Déroulé Pas-à-Pas de Résolution
+1. **Étape 1 (Espace & Base)** : Identifiez la base orthonormée propre de l'opérateur. Si l'opérateur n'est pas diagonal, calculez ses valeurs propres par l'équation séculaire $\\det(\\hat{A} - \\lambda \\mathbb{I}) = 0$.
+2. **Étape 2 (Projection)** : Projetez votre état initial sur les sous-espaces propres en calculant les coefficients $c_n = \\langle u_n | \\psi(0) \\rangle$.
+3. **Étape 3 (Dynamique ou Mesure)** :
+   - Pour une mesure d'énergie : Calculez la valeur moyenne $\\langle \\hat{H} \\rangle = \\langle \\psi | \\hat{H} | \\psi \\rangle = \\sum |c_n|^2 E_n$.
+   - Pour l'évolution temporelle : Attachez le facteur de phase $e^{-i E_n t / \\hbar}$ à chaque composante propre.
+
+---
+
+### 📌 4. Bilan d'Assimilation
+Le réflexe absolu en physique quantique : **ne tentez jamais de résoudre directement l'évolution temporelle sans avoir d'abord diagonalisé l'Hamiltonien $\\hat{H}$**. Une fois la base des états stationnaires obtenue, le problème devient trivialement séparable.`;
+
+      } else if (topic === 'algebre') {
+        res += `### 💡 1. Intuition Géométrique & Modélisation
+Un endomorphisme $u \\in \\mathcal{L}(E)$ transforme l'espace vectoriel. Diagonaliser $u$, ce n'est pas juste un jeu de calcul matriciel : c'est trouver la base 'naturelle' de l'espace où la transformation n'est qu'un ensemble d'homothéties indépendantes sur chaque axe ($u(v_i) = \\lambda_i v_i$).
+
+---
+
+### 📐 2. Théorèmes & Hypothèses Cardinales
+- **Caractérisation de la Diagonalisabilité** :
+  $u \\in \\mathcal{L}(E)$ est diagonalisable si et seulement si :
+  1. Son polynôme caractéristique $P_u(X) = \\det(u - X \\cdot \\text{id})$ est scindé sur $\\mathbb{K}$.
+  2. Pour toute valeur propre $\\lambda_k$, la multiplicité géométrique égale la multiplicité algébrique :
+     $$\\dim(\\ker(u - \\lambda_k \\cdot \\text{id})) = m_k$$
+  3. De manière équivalente : Son polynôme minimal $\\mu_u$ est scindé à racines simples.
+
+- **Théorème Spectral (Fondamental pour les ingénieurs)** :
+  Toute matrice symétrique réelle $S \\in \\mathcal{S}_n(\\mathbb{R})$ est diagonalisable dans une **base orthonormée** de vecteurs propres :
+  $$S = P D P^T \\quad \\text{avec} \\quad P \\in \\mathcal{O}_n(\\mathbb{R}) \\; (P^{-1} = P^T)$$
+
+---
+
+### ✍️ 3. Déroulé Pas-à-Pas de Résolution
+1. **Étape 1 (Détection des Invariants)** :
+   Avant de développer un polynôme lourd, calculez la trace $\\text{Tr}(A) = \\sum \\lambda_i$ et le rang $\\text{rg}(A)$. Si $\\text{rg}(A) = 1$, alors 0 est valeur propre de multiplicité $n - 1$ par le théorème du rang !
+2. **Étape 2 (Polynôme Annulateur)** :
+   Si une relation matricielle est donnée (ex: $A^2 = A$ pour un projecteur, ou $A^k = I$), factorisez le polynôme annulateur.
+3. **Étape 3 (Sous-espaces Propres)** :
+   Résolvez le système linéaire homogène $(A - \\lambda I)X = 0$ par pivot de Gauss pour fournir une base explicite de $\\ker(A - \\lambda I)$.
+
+---
+
+### 📌 4. Bilan d'Assimilation
+Ne perdez jamais de temps à calculer l'inverse $P^{-1}$ par comatrice : si vous travaillez avec des matrices symétriques, normalisez les vecteurs propres pour obtenir une base orthonormée, et écrivez directement $P^{-1} = P^T$.`;
+
+      } else if (topic === 'analyse') {
+        res += `### 💡 1. Intuition Mathématique & Cadre Formel
+En analyse supérieure d'école d'ingénieur, 90% des problèmes gravitent autour de **l'interversion de deux limites** : peut-on dériver sous le signe intégrale $\\frac{d}{dx} \\int = \\int \\frac{\\partial}{\\partial x}$ ? Peut-on échanger une intégrale et une série $\\int \\sum = \\sum \\int$ ?
+La réponse moderne est donnée par les théorèmes de Lebesgue.
+
+---
+
+### 📐 2. Théorèmes de Convergence & Interversion
+- **Théorème de Convergence Dominée (TCD)** :
+  Soit $(f_n)$ une suite de fonctions mesurables convergeant simplement vers $f$ sur un intervalle $I$.
+  S'il existe une fonction $g \\in L^1(I)$ positive et intégrable sur $I$, **indépendante de $n$**, telle que :
+  $$\\forall n, \\; |f_n(t)| \\le g(t) \\quad \\text{pour presque tout } t \\in I$$
+  Alors $f$ est intégrable sur $I$ et :
+  $$\\lim_{n \\to +\\infty} \\int_I f_n(t) \\, dt = \\int_I f(t) \\, dt$$
+
+- **Dérivation sous le Signe Intégrale (Théorème de Leibniz)** :
+  Pour $F(x) = \\int_I f(x, t) \\, dt$ :
+  1. $t \\mapsto f(x, t)$ intégrable sur $I$ pour tout $x$.
+  2. $x \\mapsto f(x, t)$ de classe $\\mathcal{C}^1$ sur $J$.
+  3. **Hypothèse de domination de la dérivée** : Pour tout segment compact $[a, b] \\subset J$, il existe $\\psi_{[a, b]} \\in L^1(I)$ telle que :
+     $$\\forall x \\in [a, b], \\; \\left| \\frac{\\partial f}{\\partial x}(x, t) \\right| \\le \\psi_{[a, b]}(t)$$
+  Alors $F$ est de classe $\\mathcal{C}^1$ sur $J$ et $F'(x) = \\int_I \\frac{\\partial f}{\\partial x}(x, t) \\, dt$.
+
+---
+
+### ✍️ 3. Déroulé Pas-à-Pas
+1. **Étape 1 (Continuité)** : Établir la continuité sur tout l'intervalle avec domination simple par $g(t)$.
+2. **Étape 2 (Dérivation locale)** : Dominer la dérivée partielle sur un segment $[a, b]$ pour éviter les divergences aux bornes.
+3. **Étape 3 (Équation Différentielle)** : Effectuer une intégration par parties pour exprimer $F'(x)$ en fonction de $F(x)$, puis résoudre l'EDO linéaire avec la condition initiale $F(0)$.
+
+---
+
+### 📌 4. Bilan d'Assimilation
+Le piège mortel en partiel : chercher une domination sur $\\mathbb{R}$ tout entier alors qu'une **domination locale sur tout compact $[a, b]$** suffit pour démontrer le caractère $\\mathcal{C}^1$.`;
+
+      } else {
+        res += `### 💡 1. Cadrage Pédagogique
+Pour aborder cette question avec toute la clarté attendue en cursus d'ingénieur :
+Posons d'abord avec précision la nature des objets en jeu (ensemble de départ, espace ambiant, domaine de définition et contraintes de régularité).
+
+---
+
+### 📐 2. Principes & Définitions
+- Identifier la structure sous-jacente : s'agit-il d'une relation algébrique, d'une convergence analytique, ou d'un opérateur de transformation ?
+- Énoncer les 2 propriétés invariantes qui gouvernent la résolution :
+  $$\\text{Condition formelle : } \\forall x \\in \\mathcal{D}, \\; \\mathcal{T}(x) = 0$$
+- Vérifier les conditions limites et la cohérence dimensionnelle.
+
+---
+
+### ✍️ 3. Démarche de Résolution Pas-à-Pas
+1. **Étape 1** : Isolez le terme directeur et reformulez sous forme canonique.
+2. **Étape 2** : Déployez la chaîne logique d'implications en vérifiant à chaque ligne si l'équivalence $(\\iff)$ est conservée.
+3. **Étape 3** : Évaluez le résultat aux points tests triviaux (ex: $x=0$, vecteur nul, cas $n=1$).
+
+---
+
+### 📌 4. Bilan d'Assimilation
+Soignez toujours la justification des hypothèses au préalable : en école d'ingénieur, 50% de la note récompense la rigueur du cadre avant le résultat final.`;
+      }
+
+      return res;
+    }
+
+    function generateExamenResponse(userQuery, topic, courseTitle, active) {
+      let res = `**⏱️ Mode Examen : Entraînement aux Réflexes de Concours**\n`;
+      if (active) res += `*Mise en situation sur le cours : « ${courseTitle} »*\n\n`;
+      else res += `*Épreuve de Synthèse : ${topic.toUpperCase()} (Situation d'oral/écrit)*\n\n`;
+
+      res += `> 🛑 **Règle du Mode Examen** : En tant qu'examinateur de jury, je ne vous donnerai **pas** la solution toute faite. Mon rôle est d'aiguiser vos réflexes de copie pour que vous sachiez débloquer n'importe quel sujet le jour J.\n\n`;
+
+      if (topic === 'quantique') {
+        res += `### ⏱️ 1. Diagnostic de Jury (Ce que le problème teste)
+Le sujet teste votre capacité à manipuler le formalisme de Dirac (bra-ket), les observables autoadjointes et la dynamique de Schrödinger sans vous noyer dans des intégrales inutiles.
+
+### ⚡ 2. Les 2 Pièges Classiques de Candidats
+1. **Le piège de l'Hermiticité** : Écrire qu'un opérateur a des valeurs propres réelles sans avoir vérifié au préalable qu'il est autoadjoint ($\\hat{A}^\\dagger = \\hat{A}$). C'est 0 immédiat à la question.
+2. **L'illusion de la dynamique directe** : Essayer d'intégrer $i\\hbar \\frac{d}{dt}|\\psi\\rangle = \\hat{H}|\\psi\\rangle$ dans la base des positions au lieu de projeter sur la base propre de $\\hat{H}$.
+
+### 🎯 3. L'Impulsion Stratégique (Sans Solution)
+- Regardez le commutateur $[\\hat{A}, \\hat{H}]$ : si l'observable commute avec l'Hamiltonien, c'est une constante du mouvement ! Sa valeur moyenne $\\langle \\hat{A} \\rangle$ est stationnaire.
+- Utilisez la relation de fermeture $\\sum |n\\rangle\\langle n| = \\mathbb{I}$ pour insérer l'identité et décomposer votre ket.
+
+### ❓ 4. Vos Deux Questions de Réflexe
+1. *Quelle est la condition de normalisation exacte de votre état initial $|\\psi(0)\\rangle$ ?*
+2. *Dans quelle base devez-vous décomposer votre vecteur d'état pour que chaque terme évolue simplement comme $e^{-i E_n t / \\hbar}$ ?*
+
+👉 **Écrivez votre première équation de projection ci-dessous**, et je corrigerai votre rigueur comme au tableau d'oral !`;
+
+      } else if (topic === 'algebre') {
+        res += `### ⏱️ 1. Diagnostic de Jury (Ce que le problème teste)
+Le jury cherche à voir si vous êtes un calculateur aveugle ou un ingénieur capable de repérer un invariant géométrique en 10 secondes.
+
+### ⚡ 2. Les 2 Pièges Classiques de Candidats
+1. **Le développement brutal du déterminant** : Développer un déterminant $3 \\times 3$ ou $4 \\times 4$ par les cofacteurs au lieu de chercher une combinaison linéaire de colonnes ou d'utiliser le théorème du rang.
+2. **La confusion diagonalisable / inversible** : Une matrice peut être diagonalisable et non inversible (ex: la matrice nulle), ou inversible et non diagonalisable (ex: matrice nilpotente $+ I$).
+
+### 🎯 3. L'Impulsion Stratégique (Sans Solution)
+- Observez les lignes et les colonnes : ont-elles toutes la même somme ? Si oui, le vecteur $(1, 1, \\dots, 1)^T$ est immédiatement vecteur propre !
+- Regardez la trace $\\text{Tr}(A)$ et comparez-la à la somme des valeurs propres.
+
+### ❓ 4. Vos Deux Questions de Réflexe
+1. *Quel est le rang immédiat de cette matrice ? Combien de valeurs propres nulles pouvez-vous affirmer en déduire sans aucun calcul ?*
+2. *La matrice est-elle symétrique réelle ? Si oui, que savez-vous instantanément sur ses sous-espaces propres ?*
+
+👉 **Donnez-moi votre première ligne de raisonnement ci-dessous**, je valide ou invalide votre démarche.`;
+
+      } else if (topic === 'analyse') {
+        res += `### ⏱️ 1. Diagnostic de Jury (Ce que le problème teste)
+Le correcteur de concours cherche la moindre faille dans la chaîne de justification de vos passages à la limite.
+
+### ⚡ 2. Les 2 Pièges Classiques de Candidats
+1. **L'oubli de domination locale** : Affirmer que $F(x) = \\int f(x, t) dt$ est $\\mathcal{C}^1$ sur $\\mathbb{R}$ en cherchant une domination globale impossible, au lieu de restreindre $x$ à un segment quelconque $[a, b]$.
+2. **L'interversion sauvage** : Écrire $\\lim \\int = \\int \\lim$ sans avoir mentionné explicitement les 3 hypothèses du théorème de convergence dominée (continuité par morceaux/mesurabilité, convergence simple, domination par $g \\in L^1$).
+
+### 🎯 3. L'Impulsion Stratégique (Sans Solution)
+- Si l'intégrale dépend d'un paramètre $x$, testez une intégration par parties pour voir si la dérivée $F'(x)$ fait réapparaître $F(x)$, transformant le problème en une simple équation différentielle d'ordre 1.
+
+### ❓ 4. Vos Deux Questions de Réflexe
+1. *Quelle fonction dominante $\\psi(t)$ proposez-vous pour majorer la dérivée partielle ? Est-elle bien intégrable sur le voisinage de l'infini ?*
+2. *Comment justifiez-vous la nullité des termes de bord lors de l'intégration par parties ?*
+
+👉 **Proposez votre majorant ci-dessous**, je vérifie s'il tient face aux exigences du jury.`;
+
+      } else {
+        res += `### ⏱️ 1. Diagnostic de Jury
+Face à ce problème de concours, la différence entre un candidat moyen et un major réside dans la vitesse à laquelle il pose le bon cadre d'analyse.
+
+### ⚡ 2. Les 2 Pièges Classiques de Candidats
+1. Se précipiter sur des calculs compliqués avant d'avoir vérifié les cas limites triviaux.
+2. Sauter l'étape de justification de l'existence et de l'unicité avant d'en calculer la forme explicite.
+
+### 🎯 3. L'Impulsion Stratégique (Sans Solution)
+- Reformulez le problème en identifiant la quantité invariante (norme, trace, énergie, symétrie).
+- Évaluez le comportement aux bornes pour encadrer la solution.
+
+### ❓ 4. Vos Deux Questions de Réflexe
+1. *Quel est l'espace vectoriel ambiant et quelle est sa dimension ?*
+2. *Quelle condition nécessaire doit impérativement être vérifiée par vos variables ?*
+
+👉 **Écrivez votre première hypothèse ci-dessous**, et je corrigerai votre rigueur d'ingénieur.`;
+      }
+
+      return res;
+    }
+
+    function generateExoTypeResponse(courseTitle, courseSubject, topic) {
+      return `**📑 Fiche Méthode & Exercice-Type Canonique : *${courseTitle}***\n\n` +
+        `Voici l'exercice étalon incontournable pour ce domaine, rédigé et corrigé selon les standards d'exigence des concours d'ingénieur :\n\n` +
+        `---\n\n` +
+        `### 🎯 1. Énoncé du Problème Type\n` +
+        `Soit $E = \\mathbb{R}_n[X]$. On considère l'application $u : P \\mapsto (X^2 - 1)P'' + (2X + 1)P'$.\n` +
+        `1. Justifier avec soin que $u$ stabilise $E$.\n` +
+        `2. Déterminer la matrice de $u$ dans la base canonique et en déduire l'intégralité de son spectre $\\text{Sp}(u)$.\n` +
+        `3. Conclure quant à la diagonalisabilité de $u$.\n\n` +
+        `---\n\n` +
+        `### ✍️ 2. Résolution Guidée & Rigueur Mathématique\n` +
+        `- **Stabilité** : Pour tout polynôme de degré $k \\le n$, le terme $(X^2-1)P''$ a un degré $\\le k$ et $(2X+1)P'$ a un degré $\\le k$. Donc $\\deg(u(P)) \\le \\deg(P) \\le n$. Ainsi $u \\in \\mathcal{L}(E)$.\n` +
+        `- **Caractère Triangulaire** : Le coefficient dominant de $u(X^k)$ est $k(k-1) + 2k = k(k+1)$. La matrice de $u$ est donc **triangulaire supérieure** dans la base canonique ordonnée $(1, X, \\dots, X^n)$.\n` +
+        `- **Spectre** : Les valeurs propres sont les éléments diagonaux : $\\lambda_k = k(k+1)$ pour $k \\in \\{0, 1, \\dots, n\\}$. Comme la fonction $k \\mapsto k(k+1)$ est strictement croissante sur $\\mathbb{N}$, les $n+1$ valeurs propres sont deux à deux distinctes.\n` +
+        `- **Verdict** : $u$ possède $\\dim(E) = n+1$ valeurs propres distinctes, donc **$u$ est diagonalisable**.\n\n` +
+        `---\n\n` +
+        `### ⚡ 3. Réflexes de Copie & Pièges à Éviter\n` +
+        `- Inutile d'expliciter chaque coefficient sous-diagonal : le caractère triangulaire et la stricte séparation des éléments diagonaux suffisent à conclure sans calcul lourd !\n\n` +
+        `<button onclick="saveChatAsExoType('Endomorphisme polynomial : ${courseTitle}', '${courseSubject}', 'Énoncé : Soit u(P) = (X^2-1)P\'\' + (2X+1)P\'. Montrer que u est diagonalisable.\\n\\nRésolution : Matrice triangulaire supérieure. Valeurs propres distinctes lambda_k = k(k+1). n+1 vp distinctes donc diagonalisable.', 'Vérifier la stricte croissance pour certifier que les valeurs propres sont distinctes.')" class="mt-2 px-3 py-1.5 bg-ink-900 text-white rounded text-xs font-medium hover:bg-ink-800 transition">💾 Enregistrer cet Exercice dans mes Fiches & Exos-Types</button>`;
+    }
+
+    function buildAutonomousResponse(userQuery, mode, active) {
+      const lower = userQuery.toLowerCase();
+      const courseTitle = active ? active.title : (userQuery.includes('quantique') ? "Physique Quantique" : "Mathématiques Générales");
+      const courseSubject = active ? active.subject : "Sciences de l'Ingénieur";
+      const topic = detectMathTopic(userQuery, active);
+
+      if (lower.includes('fiche') || lower.includes('exo-type') || lower.includes('exercice-type') || lower.includes('canonique') || lower.includes('modèle')) {
+        return generateExoTypeResponse(courseTitle, courseSubject, topic);
+      }
+
+      if (mode === 'revision') {
+        return generateRevisionResponse(userQuery, topic, courseTitle, active);
+      } else {
+        return generateExamenResponse(userQuery, topic, courseTitle, active);
+      }
+    }
+
+    async function generateProfessorResponse(userQuery) {
+      const active = getActiveCourse();
+      const mode = appData.chatMode || 'revision';
+
+      // 1. Appel du modèle IA connecté si disponible
+      const systemPrompt = buildSystemPrompt(mode, active);
+      const llmAnswer = await callLlmApi(userQuery, systemPrompt);
+      if (llmAnswer) {
+        appendChatMessage('professor', llmAnswer);
+        return;
+      }
+
+      // 2. Moteur pédagogique autonome d'élite
+      const response = buildAutonomousResponse(userQuery, mode, active);
       appendChatMessage('professor', response);
     }
 
@@ -2288,8 +2741,9 @@ Démontrer la convergence ou l'existence de la solution unique, puis établir l'
       // 5. Vue Fiches
       renderFichesList();
 
-      // 6. Contexte du Chat
+      // 6. Contexte du Chat & Mode
       updateActiveContextUI();
+      updateChatModeUI();
       renderAllMath();
     }
 
@@ -2331,6 +2785,7 @@ Démontrer la convergence ou l'existence de la solution unique, puis établir l'
           if (!appData.fiches) appData.fiches = [];
           if (!appData.revisions) appData.revisions = [];
           if (!appData.messages) appData.messages = [];
+          if (!appData.chatMode) appData.chatMode = 'revision';
         } catch(e) {
           console.error("Erreur de parsing local:", e);
         }
